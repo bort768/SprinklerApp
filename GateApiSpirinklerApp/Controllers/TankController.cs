@@ -1,0 +1,106 @@
+﻿using DataBaseService.Infrastructure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Model;
+using System.Net.Mail;
+
+// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+
+namespace GateApiSpirinklerApp.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class TankController : ControllerBase
+    {
+        private readonly UnitOfWork _unitOfWork;
+
+        public TankController(UnitOfWork unitOfWork)
+        {
+            _unitOfWork = unitOfWork;
+        }
+
+        // GET: api/<TankController>
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Tank>>> GetTank()
+        {
+            var tanks = _unitOfWork.TankRepository.Get(); ;
+
+            return Ok(tanks);
+        }
+
+        // GET api/<TankController>/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Tank>> GetTankById(long id)
+        {
+            var tank = _unitOfWork.TankRepository.GetByID(id);
+
+            if (tank == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(tank);
+        }
+
+        // POST api/<TankController>
+        [HttpPost]
+        public async Task<ActionResult<Tank>> PostTank(Tank tank)
+        {
+            _unitOfWork.TankRepository.Insert(tank);
+            await _unitOfWork.Save();
+
+            return CreatedAtAction("GetTank", new { id = tank.Id }, tank);
+        }
+
+        // PUT api/<TankController>/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutTank(long id, Tank tank)
+        {
+            if (id != tank.Id)
+            {
+                return BadRequest();
+            }
+
+            _unitOfWork.TankRepository.Update(tank);
+            try
+            {
+                await _unitOfWork.Save();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                var result = await TankExists(id);
+                if (result is not true)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return NoContent();
+        }
+
+        // DELETE api/<TankController>/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteTank(int id)
+        {
+            var tank = _unitOfWork.TankRepository.GetByID(id);
+            if (tank == null)
+            {
+                return NotFound();
+            }
+
+            _unitOfWork.TankRepository.Delete(id);
+            await _unitOfWork.Save();
+
+            return NoContent();
+        }
+
+        private async Task<bool> TankExists(long id)
+        {
+            var tank = await _unitOfWork.TankRepository.GetByID(id);
+            return tank != null;
+        }
+    }
+}

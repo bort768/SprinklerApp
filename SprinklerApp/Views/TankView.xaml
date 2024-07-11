@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SprinklerApp.Views.TankView"
+             xmlns:viewModel="clr-namespace:SprinklerApp.ViewModels"
+             x:DataType="viewModel:TankViewModel"
+             Title="{Binding Title}">
+    <ScrollView>
+        <VerticalStackLayout >
+            <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
+                <VerticalStackLayout>
+                    <Label Text="Szerokość" FontSize="Large" Margin="5,5,5,0"/>
+                    <Entry Text="{Binding Widht}" Keyboard="Numeric" Margin="5,0,5,5"/>
+
+                    <Label Text="Długość" FontSize="Large" Margin="5,0,5,0"/>
+                    <Entry Text="{Binding Lenght}" Keyboard="Numeric" Margin="5,0,5,5" />
+
+                    <Label Text="Wysokość" FontSize="Large" Margin="5,0,5,0"/>
+                    <Entry Text="{Binding Height}" Keyboard="Numeric" Margin="5,0,5,5"/>
+
+                    <Button Text="Save" Command="{Binding SaveDataCommand}"  Margin="5,10,5,5"/>
+                </VerticalStackLayout>
+            </Frame>
+            
+
+            <Frame HeightRequest="250" Margin="10" BackgroundColor="{StaticResource Gray600}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition  Height="Auto"/>
+                        <RowDefinition  Height="120"/>
+                        <RowDefinition  Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Text=" Stan zbiornika" FontSize="Title" />
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <VerticalStackLayout Grid.Column="0" VerticalOptions="Center" Margin="10">
+                            <Label Text="{Binding FillLevel, StringFormat='{0}%'}"/>
+                            <Label Text="{Binding VolumeFillLevel, StringFormat='{0} m^3'}" />
+                        </VerticalStackLayout>
+                        <Rectangle Grid.Column="1" WidthRequest="100" HeightRequest="{Binding FillLevel}" Fill="Blue" VerticalOptions="End" Margin="0,0,0,10" />
+                        <Rectangle Grid.Column="1" WidthRequest="100" HeightRequest="100" Fill="Transparent" Stroke="Cyan" />
+                    </Grid>
+                    <Label Grid.Row="2" Text="{Binding TankVolume, StringFormat='{0} m^3'}" FontSize="Large" />
+                </Grid>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

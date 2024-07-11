@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SprinklerApp.Views.SettingsView"
+             xmlns:viewModels="clr-namespace:SprinklerApp.ViewModels;assembly=SprinklerApp"
+             x:DataType="viewModels:SettingsViewModel"
+             Title="{Binding Title}">
+    <VerticalStackLayout>
+        <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
+            <VerticalStackLayout>
+                <Label Text="Adres API Serwera" FontSize="Large" Margin="5,5,5,0"/>
+                <Entry Text="{Binding ApiAddress}"  />
+                <Button Text="Zapisz" Command="{Binding SaveApiAddressCommand}" Margin="5,5,5,0"/>
+
+                <Label Text="Adres API pogodowego (openweathermap.org/api)" FontSize="Large" Margin="5,5,5,0"/>
+                <Entry Text="{Binding WeatherApiAddress}" Margin="5,5,5,0" />
+                <Button Text="Zapisz" Command="{Binding SaveWeatherApiAddressCommand}" Margin="5,5,5,0"/>
+            </VerticalStackLayout>
+        </Frame>
+
+    </VerticalStackLayout>
+</ContentPage>

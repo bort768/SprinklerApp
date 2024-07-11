@@ -1,0 +1,6 @@
+@GateApiSpirinklerApp_HostAddress = http://localhost:5110
+
+GET {{GateApiSpirinklerApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
