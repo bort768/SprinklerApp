@@ -10,13 +10,13 @@
             <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
                 <VerticalStackLayout>
                     <Label Text="Szerokość" FontSize="Large" Margin="5,5,5,0"/>
-                    <Entry Text="{Binding Widht}" Keyboard="Numeric" Margin="5,0,5,5"/>
+                    <Entry Text="{Binding Width}" Keyboard="Numeric" Margin="5,0,5,5"/>
 
                     <Label Text="Długość" FontSize="Large" Margin="5,0,5,0"/>
-                    <Entry Text="{Binding Lenght}" Keyboard="Numeric" Margin="5,0,5,5" />
+                    <Entry Text="{Binding Length}" Keyboard="Numeric" Margin="5,0,5,5" />
 
                     <Label Text="Wysokość" FontSize="Large" Margin="5,0,5,0"/>
-                    <Entry Text="{Binding Height}" Keyboard="Numeric" Margin="5,0,5,5"/>
+                    <Entry Text="{Binding Heigth}" Keyboard="Numeric" Margin="5,0,5,5"/>
 
                     <Button Text="Save" Command="{Binding SaveDataCommand}"  Margin="5,10,5,5"/>
                 </VerticalStackLayout>

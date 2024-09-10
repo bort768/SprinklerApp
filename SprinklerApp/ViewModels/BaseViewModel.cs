@@ -57,7 +57,7 @@ namespace SprinklerApp.ViewModels
         }
 
         /// <summary>
-        /// metoda do wyświetlania porazki
+        /// Toast fail message
         /// </summary>
         /// <returns></returns>
         public static async Task ToastSaveFail()
@@ -69,7 +69,6 @@ namespace SprinklerApp.ViewModels
             double fontSize = 18;
 
             var toast = Toast.Make(text, duration, fontSize);
-
 
             await toast.Show(cancellationTokenSource.Token);
         }

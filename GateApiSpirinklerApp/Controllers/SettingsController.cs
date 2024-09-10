@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace GateApiSpirinklerApp.Controllers
 {
@@ -17,8 +16,6 @@ namespace GateApiSpirinklerApp.Controllers
     [HttpPost("UpdateWeatherApiKey")]
     public IActionResult UpdateWeatherApiKey([FromBody] string newApiKey)
     {
-        // Tutaj zapisz nowy klucz API do pliku konfiguracyjnego lub bazy danych
-        // Poniższy kod jest tylko przykładem i wymaga dostosowania
         var filePath = "appsettings.json";
         var json = System.IO.File.ReadAllText(filePath);
         dynamic jsonObj = Newtonsoft.Json.JsonConvert.DeserializeObject(json);

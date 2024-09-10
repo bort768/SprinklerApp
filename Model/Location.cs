@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Model
 {
     public class LocalNames
     {
-
+        public long Id { get; set; }
         public string bh { get; set; }
         public string ascii { get; set; }
         public string af { get; set; }
@@ -55,7 +50,7 @@ namespace Model
         public string et { get; set; }
         public string ha { get; set; }
         public string bi { get; set; }
-        public string id { get; set; }
+        //public string id { get; set; }
         public string mr { get; set; }
         public string na { get; set; }
         public string ba { get; set; }
@@ -164,6 +159,7 @@ namespace Model
 
     public class LocationInfo
     {
+        public long Id { get; set; }
         public string name { get; set; }
         public LocalNames local_names { get; set; }
         public double lat { get; set; }

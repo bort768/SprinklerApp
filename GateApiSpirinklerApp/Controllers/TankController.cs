@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
-using System.Net.Mail;
+using Model.Dto;
+using Model.Mapper;
+
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,8 +25,7 @@ namespace GateApiSpirinklerApp.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Tank>>> GetTank()
         {
-            var tanks = _unitOfWork.TankRepository.Get(); ;
-
+            var tanks = await _unitOfWork.TankRepository.GetAllAsync();
             return Ok(tanks);
         }
 
@@ -32,7 +33,7 @@ namespace GateApiSpirinklerApp.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Tank>> GetTankById(long id)
         {
-            var tank = _unitOfWork.TankRepository.GetByID(id);
+            var tank = await _unitOfWork.TankRepository.GetByID(id);
 
             if (tank == null)
             {
@@ -44,9 +45,11 @@ namespace GateApiSpirinklerApp.Controllers
 
         // POST api/<TankController>
         [HttpPost]
-        public async Task<ActionResult<Tank>> PostTank(Tank tank)
+        public async Task<ActionResult<TankDto>> PostTank([FromBody] TankDto tankDto)
         {
-            _unitOfWork.TankRepository.Insert(tank);
+            var tank = TankMapper.ToModel(tankDto);
+
+            await _unitOfWork.TankRepository.Insert(tank);
             await _unitOfWork.Save();
 
             return CreatedAtAction("GetTank", new { id = tank.Id }, tank);
@@ -54,8 +57,10 @@ namespace GateApiSpirinklerApp.Controllers
 
         // PUT api/<TankController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTank(long id, Tank tank)
+        public async Task<IActionResult> PutTank(long id, TankDto tankDto)
         {
+            var tank = TankMapper.ToModel(tankDto);
+
             if (id != tank.Id)
             {
                 return BadRequest();
@@ -83,9 +88,9 @@ namespace GateApiSpirinklerApp.Controllers
 
         // DELETE api/<TankController>/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteTank(int id)
+        public async Task<IActionResult> DeleteTank(long id)
         {
-            var tank = _unitOfWork.TankRepository.GetByID(id);
+            var tank = await _unitOfWork.TankRepository.GetByID(id);
             if (tank == null)
             {
                 return NotFound();

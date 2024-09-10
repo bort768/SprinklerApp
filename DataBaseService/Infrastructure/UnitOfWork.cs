@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DataBaseService;
-using Model;
+﻿using Model;
 
 namespace DataBaseService.Infrastructure
 {
@@ -8,7 +6,6 @@ namespace DataBaseService.Infrastructure
     {
         private SprinklerAppDbContext context;
         private GenericRepository<Tank>? tankRepository;
-        //private GenericRepository<> Repository;
 
         public GenericRepository<Tank> TankRepository
         {

@@ -1,7 +1,5 @@
-﻿using DataBaseService;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using Microsoft.EntityFrameworkCore;
+using Model.Helpers;
 
 namespace DataBaseService.Infrastructure
 {
@@ -16,32 +14,32 @@ namespace DataBaseService.Infrastructure
             this.dbSet = context.Set<TEntity>();
         }
 
-        public virtual IEnumerable<TEntity> Get(
-            Expression<Func<TEntity, bool>> filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
-            string includeProperties = "")
+        public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
+        {
+            return await dbSet.ToListAsync();
+        }
+
+        public virtual IEnumerable<TEntity> Specify(ISpecification<TEntity> specification = null)
         {
             IQueryable<TEntity> query = dbSet;
 
-            if (filter != null)
+            if (specification.Criteria != null)
             {
-                query = query.Where(filter);
+                query = query.Where(specification.Criteria);
             }
 
-            foreach (var includeProperty in includeProperties.Split
-                (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+            foreach (var includeExpression in specification.Includes)
             {
-                query = query.Include(includeProperty);
+                query = query.Include(includeExpression);
             }
 
-            if (orderBy != null)
+            if (specification.OrderBy != null)
             {
-                return orderBy(query).ToList();
+                //query = specification.OrderBy(query);
+                query = query.OrderBy(specification.OrderBy);
             }
-            else
-            {
-                return query.ToList();
-            }
+
+            return query.ToList();
         }
 
         public virtual async Task<TEntity> GetByID(object id)
@@ -57,7 +55,8 @@ namespace DataBaseService.Infrastructure
         public virtual void Delete(object id)
         {
             TEntity entityToDelete = dbSet.Find(id);
-            Delete(entityToDelete);
+            if (entityToDelete != null) 
+                Delete(entityToDelete);
         }
 
         public virtual void Delete(TEntity entityToDelete)

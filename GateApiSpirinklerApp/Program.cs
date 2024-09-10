@@ -6,9 +6,16 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+//builder.Configuration
+//    .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("secrets.json");
+
+var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connectionstring == null)
+    throw new InvalidOperationException("Connection string not found.");
 
 builder.Services.AddDbContext<SprinklerAppDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionString")));
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("GateApiSpirinklerApp")));
+//builder.Services.AddDbContext<SprinklerAppDbContext>();
 
 builder.Services.AddScoped<UnitOfWork, UnitOfWork>(provider =>
 {

@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataBaseService
 {
@@ -18,16 +13,21 @@ namespace DataBaseService
         public DbSet<LocationInfo> LocationInfos { get; set; }
         public DbSet<LocalNames> LocalNames { get; set; }
         public DbSet<Tank> Tanks { get; set; }
+        public DbSet<Settings> Settings { get; set; }
 
         public SprinklerAppDbContext()
         {
             
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public SprinklerAppDbContext(DbContextOptions<SprinklerAppDbContext> options): base(options) 
         {
-            //Todo: dodaj secret 
-            optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Initial Catalog=SprinklerAppDb;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
         }
+
+        //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        //{
+        //    //Todo: add secret 
+        //    optionsBuilder.UseSqlServer("Server=.\\SQLEXPRESS;Initial Catalog=SprinklerAppDb;Integrated Security=True;Connect Timeout=30;Encrypt=True;TrustServerCertificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False");
+        //}
     }
 }

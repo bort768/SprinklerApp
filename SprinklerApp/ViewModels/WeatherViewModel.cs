@@ -3,31 +3,29 @@ using CommunityToolkit.Mvvm.Input;
 using Model;
 using Newtonsoft.Json;
 using RestSharp;
+using SprinklerApp.Helpers;
 
 namespace SprinklerApp.ViewModels
 {
     public partial class WeatherViewModel : BaseViewModel
     {
         [ObservableProperty]
-        string city;
-
-        static string apiKey;
-
-        [ObservableProperty]
-        WeatherRoot weather;
+        private string city;
+        private static string? _apiKey;
 
         [ObservableProperty]
-        LocationInfo location;
+        private WeatherRoot weather;
 
         [ObservableProperty]
-        double temp;
+        private LocationInfo location;
+
+        [ObservableProperty]
+        private double temp;
 
         private List<LocationInfo> locationInfoList;
         private WeatherRoot weatherInfoList;
 
         private const string MESSAGEFAILINFOAPI = "Klucz api nie został przypisany";
-
-
 
         public WeatherViewModel()
         {
@@ -45,7 +43,7 @@ namespace SprinklerApp.ViewModels
             var request = new RestRequest("direct")
             .AddParameter("q", city)
             .AddParameter("limit", 5.ToString())
-            .AddParameter("appid", apiKey);
+            .AddParameter("appid", _apiKey);
             var response = client.Get(request); //GetAsync should be here
             Console.WriteLine(response.Content);
 
@@ -56,12 +54,9 @@ namespace SprinklerApp.ViewModels
 
         private static async Task<bool> GetApiKey()
         {
-            if (string.IsNullOrWhiteSpace(apiKey) == false)
-                return true;
+            _apiKey = ApiSettings.Instance.WeatherApiAddress;
 
-            apiKey = await SecureStorage.Default.GetAsync("API_KEY");
-
-            if (string.IsNullOrWhiteSpace(apiKey))
+            if (string.IsNullOrWhiteSpace(_apiKey))
             {
                 await ToastSaveFail(MESSAGEFAILINFOAPI);
                 return false;
@@ -79,6 +74,7 @@ namespace SprinklerApp.ViewModels
                 IsBusy = false;
                 return;
             }
+
             else
             {
                 //what if we don't have connection to internet?
@@ -90,7 +86,6 @@ namespace SprinklerApp.ViewModels
                 {
                     await ToastSaveSuccess(e.Message);
                 }
-
             }
 
             if (Location == null)
@@ -99,16 +94,17 @@ namespace SprinklerApp.ViewModels
                 IsBusy = false;
                 return;
             }
-            var client = new RestClient($"https://api.openweathermap.org/data/3.0/onecall?lat={locationInfoList[0].lat}" +
-                                    $"&lon={locationInfoList[0].lon}&exclude=daily,minutely&units=&appid={apiKey}");
-            //var client = new RestClient($"https://api.openweathermap.org/data/3.0/onecall?");
+
+            //var client = new RestClient($"https://api.openweathermap.org/data/3.0/onecall?lat={locationInfoList[0].lat}" +
+            //                        $"&lon={locationInfoList[0].lon}&exclude=daily,minutely&units=&appid={_apiKey}");
+            var client = new RestClient($"https://api.openweathermap.org/data/3.0/onecall");
 
             var request = new RestRequest();
 
-            //request.AddParameter("&lat=", locationInfoList.FirstOrDefault().lat);
-            //request.AddParameter("&lon=", locationInfoList.FirstOrDefault().lon);
-            //request.AddParameter("&exclude=", "daily");
-            //request.AddParameter("&appid=", API_Key);
+            request.AddParameter("lat", locationInfoList.FirstOrDefault().lat);
+            request.AddParameter("lon", locationInfoList.FirstOrDefault().lon);
+            request.AddParameter("exclude", "daily,minutely");
+            request.AddParameter("appid", _apiKey);
             var response = await client.GetAsync(request);
 
             weatherInfoList = JsonConvert.DeserializeObject<WeatherRoot>(response.Content.ToString());
@@ -120,8 +116,6 @@ namespace SprinklerApp.ViewModels
             }
 
             Weather = Convert_Temp_To_Cel(weatherInfoList);
-
-            //weather = weatherInfoList;
 
             IsBusy = false;
         }
