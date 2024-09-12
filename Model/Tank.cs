@@ -1,10 +1,13 @@
 ﻿using Model.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace Model
 {
     public class Tank
     {
-        public long Id { get; private set; } 
+        public long Id { get; private set; }
+        [StringLength(MaxNameLenght)]
+        public string Name { get; set; }
         public int Length { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -16,6 +19,13 @@ namespace Model
         public double VolumeFillLevelInCubicMeters => Math.Round( ConvertVolumeToCubicMeters() * (FillLevel / 100), 2);
 
         public double ConvertVolumeToCubicMeters() => Math.Round(Volume / 1000000, 2);
+
+        private const int MaxNameLenght = 250; 
+
+        public Tank()
+        {
+            
+        }
 
         public Tank(long id)
         {
@@ -76,6 +86,21 @@ namespace Model
             FillLevel = fillLevel;
             return Result<double>.Success(fillLevel);
         }
+
+        public Result<string> SetName(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return Result<string>.Failure(name, "Name cannot be empty");
+            }
+            if(name.Length > MaxNameLenght)
+            {
+                return Result<string>.Failure(name, $"Name cannot be longer than {MaxNameLenght} characters");
+            }
+            Name = name;
+            return Result<string>.Success(name);
+        }
+
 
         //method to help map dto to model
         public void SetLength(int length)

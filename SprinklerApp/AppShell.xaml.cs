@@ -1,4 +1,5 @@
-﻿using SprinklerApp.Views;
+﻿using SprinklerApp.ViewModels;
+using SprinklerApp.Views;
 
 namespace SprinklerApp
 {
@@ -10,7 +11,8 @@ namespace SprinklerApp
 
             Routing.RegisterRoute($"{nameof(WeatherView)}", typeof(WeatherView));
             Routing.RegisterRoute($"{nameof(SettingsView)}", typeof(SettingsView));
-            Routing.RegisterRoute($"{nameof(TankView)}", typeof(TankView));
+            Routing.RegisterRoute($"{nameof(TanksView)}", typeof(TanksView));
+            Routing.RegisterRoute($"{nameof(TanksView)}/{nameof(TankView)}", typeof(TankView));
         }
     }
 }

@@ -11,5 +11,6 @@ namespace Model.Dto
         public double Volume { get; set; }
         public double TankCapacity { get; set; }
         public double VolumeFillLevelInCubicMeters { get; set; }
+        public string Name { get; set; }
     }
 }

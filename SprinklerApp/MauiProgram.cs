@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Maui;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SprinklerApp.ViewModels;
+using SprinklerApp.Views;
 
 namespace SprinklerApp
 {
@@ -19,6 +21,10 @@ namespace SprinklerApp
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            builder.Services.AddTransient<TankViewModel>();
+            builder.Services.AddSingleton<TanksView>();
+            builder.Services.AddSingleton<TanksViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

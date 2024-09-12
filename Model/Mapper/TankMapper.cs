@@ -10,6 +10,7 @@ namespace Model.Mapper
             return new TankDto
             {
                 Id = tank.Id,
+                Name = tank.Name,
                 Length = tank.Length,
                 Width = tank.Width,
                 Height = tank.Height,
@@ -27,6 +28,7 @@ namespace Model.Mapper
             tank.SetWidth(tankDto.Width);
             tank.SetHeight(tankDto.Height);
             tank.SetFillLevel(tankDto.FillLevel);
+            tank.SetName(tankDto.Name);
             return tank;
         }
     }

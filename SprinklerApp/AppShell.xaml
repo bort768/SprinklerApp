@@ -13,7 +13,7 @@
     </FlyoutItem>
 
     <FlyoutItem Title="Tank Info">
-        <ShellContent ContentTemplate="{DataTemplate view:TankView}"/>
+        <ShellContent ContentTemplate="{DataTemplate view:TanksView}"/>
     </FlyoutItem>
 
     <FlyoutItem Title="Settings">

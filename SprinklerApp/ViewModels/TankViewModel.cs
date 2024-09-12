@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Model;
+using Model.Dto;
 using Model.Helpers;
 using Model.Mapper;
 using Newtonsoft.Json;
@@ -11,29 +12,21 @@ namespace SprinklerApp.ViewModels
 {
     public partial class TankViewModel : BaseViewModel
     {
-        [ObservableProperty]
-        private string length;
-
-        [ObservableProperty]
-        private string width;
-
-        [ObservableProperty]
-        private string heigth;
-
-        [ObservableProperty]
-        private double fillLevel;
-
-        [ObservableProperty]
-        private double volumeFillLevel;
-
-        [ObservableProperty]
-        public double tankVolume;
-
         private Tank tank = new Tank();
+
+        private long tankId;
 
         public TankViewModel()
         {
             //LoadTankInfo().ConfigureAwait(false);
+        }
+
+        public void ApplyQueryAttributes(IDictionary<string, object> query)
+        {
+            if (query.TryGetValue("TankId", out var tankIdValue) && tankIdValue is long id)
+            {
+                tankId = id;
+            }
         }
 
         public async Task OnNavigatedToAsync()
@@ -63,8 +56,8 @@ namespace SprinklerApp.ViewModels
                         return;
 
                     //TODO: It will get list of tanks, need to change it to get only one tank
-                    var tanks = JsonConvert.DeserializeObject<IEnumerable<Tank>>(json);
-                    tank = tanks.FirstOrDefault();
+                    var tanks = JsonConvert.DeserializeObject<IEnumerable<TankDto>>(json);
+                    tank = TankMapper.ToModel(tanks.FirstOrDefault());
 
                     if (tank is null)
                         return;
@@ -125,5 +118,24 @@ namespace SprinklerApp.ViewModels
                 }
             }
         }
+
+        [ObservableProperty]
+        private string length;
+
+        [ObservableProperty]
+        private string width;
+
+        [ObservableProperty]
+        private string heigth;
+
+        [ObservableProperty]
+        private double fillLevel;
+
+        [ObservableProperty]
+        private double volumeFillLevel;
+
+        [ObservableProperty]
+        public double tankVolume;
     }
+
 }

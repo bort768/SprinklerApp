@@ -23,24 +23,25 @@ namespace GateApiSpirinklerApp.Controllers
 
         // GET: api/<TankController>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tank>>> GetTank()
+        public async Task<ActionResult<IEnumerable<TankDto>>> GetTank()
         {
             var tanks = await _unitOfWork.TankRepository.GetAllAsync();
-            return Ok(tanks);
+            var tankDtos = tanks.Select(tank => TankMapper.ToDto(tank));
+            return Ok(tankDtos);
         }
 
         // GET api/<TankController>/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tank>> GetTankById(long id)
+        public async Task<ActionResult<TankDto>> GetTankById(long id)
         {
             var tank = await _unitOfWork.TankRepository.GetByID(id);
 
             if (tank == null)
             {
                 return NotFound();
-            }
+            }         
 
-            return Ok(tank);
+            return Ok(TankMapper.ToDto(tank));
         }
 
         // POST api/<TankController>

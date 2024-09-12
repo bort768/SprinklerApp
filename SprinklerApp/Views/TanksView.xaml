@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:SprinklerApp.ViewModels;assembly=SprinklerApp"
+             x:DataType="viewModels:TanksViewModel"
+             x:Class="SprinklerApp.Views.TanksView"
+             Title="TanksView">
+    <RefreshView IsRefreshing="{Binding IsBusy}"  Command="{Binding LoadItemsCommand}">
+        <CollectionView ItemsSource="{Binding TankDisplays}" 
+                        SelectionMode="Single">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="viewModels:TankDisplayModel">
+                    <Grid Padding="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" /> 
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding Id}" />
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding Name}" />
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding Capacity}" />
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding FillLevel}" />
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</ContentPage>
