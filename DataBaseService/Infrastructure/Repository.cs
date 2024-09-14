@@ -25,21 +25,21 @@ namespace DataBaseService.Infrastructure
 
             if (specification.Criteria != null)
             {
-                query = query.Where(specification.Criteria);
+                query = dbSet.Where(specification.Criteria);
             }
 
             foreach (var includeExpression in specification.Includes)
             {
-                query = query.Include(includeExpression);
+                query =  dbSet.Include(includeExpression);
             }
 
             if (specification.OrderBy != null)
             {
                 //query = specification.OrderBy(query);
-                query = query.OrderBy(specification.OrderBy);
+                query = dbSet.OrderBy(specification.OrderBy);
             }
 
-            return query.ToList();
+            return query;
         }
 
         public virtual async Task<TEntity> GetByID(object id)

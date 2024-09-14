@@ -14,13 +14,14 @@ namespace SprinklerApp.ViewModels
     {
         private Tank tank = new Tank();
 
-        private long tankId;
+        private long? tankId;
 
         public TankViewModel()
         {
             //LoadTankInfo().ConfigureAwait(false);
         }
 
+        //TODO 14/09/2024: Check if this works. It should be called when the user navigates to the page
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
             if (query.TryGetValue("TankId", out var tankIdValue) && tankIdValue is long id)
@@ -41,7 +42,10 @@ namespace SprinklerApp.ViewModels
                 HttpResponseMessage? response = new();
                 try
                 {
-                    response = await client.GetAsync($"{ApiSettings.Instance.ApiAddress}/Tank");
+                    if (tankId is null)
+                        return;
+                    
+                    response = await client.GetAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tankId}");
                 }
                 catch (Exception e)
                 {
@@ -79,8 +83,9 @@ namespace SprinklerApp.ViewModels
             if(tank is null)
                 tank = new Tank();
 
-            var result = new Result<int>();
-            result = result.Combine(tank.SetHeight(Heigth), tank.SetLength(Length), tank.SetWidth(Width));
+            var result = new Result();
+            result = result.Combine(tank.SetHeight(Heigth), tank.SetLength(Length),
+                tank.SetWidth(Width), tank.SetName(Name));
             if (result.IsFailure)
             {
                 await ToastSaveFail(result.Message);
@@ -107,7 +112,6 @@ namespace SprinklerApp.ViewModels
                     response = await client.PostAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tank.Id}", content);
                 }
 
-
                 if (response.IsSuccessStatusCode)
                 {
                     await ToastSaveSuccess("Data saved successfully.");
@@ -127,6 +131,9 @@ namespace SprinklerApp.ViewModels
 
         [ObservableProperty]
         private string heigth;
+
+        [ObservableProperty]
+        private string name;
 
         [ObservableProperty]
         private double fillLevel;

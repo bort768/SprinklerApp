@@ -2,19 +2,31 @@
 using Model.Dto;
 using Model.Mapper;
 using Newtonsoft.Json;
-using System.Collections.ObjectModel;
 using SprinklerApp.Helpers;
 using SprinklerApp.Views;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Model.Helpers;
 
 namespace SprinklerApp.ViewModels
 {
     public partial class TanksViewModel : BaseViewModel
     {
-        public List<TankViewModel> Tanks { get; set; }
-        public ObservableCollection<TankDisplayModel> TankDisplays { get; set; }
 
+        [ObservableProperty]
+        public List<TankDisplayModel> tankDisplays;
 
-        public TanksViewModel() { }
+        [ObservableProperty]
+        string searchText;
+
+        [ObservableProperty]
+        bool searchByName;
+
+        [ObservableProperty]
+        bool sortByCapacity;
+
+        public TanksViewModel() { 
+            LoadItems().ConfigureAwait(false);
+        }
 
         [RelayCommand]
         public async Task LoadItems()
@@ -24,7 +36,11 @@ namespace SprinklerApp.ViewModels
                 HttpResponseMessage? response = new();
                 try
                 {
-                    response = await client.GetAsync($"{ApiSettings.Instance.ApiAddress}/Tank");
+                        var searchRoute = string.IsNullOrEmpty(SearchText)
+                            ? $"{ApiSettings.Instance.ApiAddress}/Tank"
+                            : $"{ApiSettings.Instance.ApiAddress}/Tank" +
+                                $"{RouteDictionary.Tank.SearchByNameRoute + SearchText}";
+                        response = await client.GetAsync(searchRoute);
                 }
                 catch (Exception e)
                 {
@@ -44,7 +60,7 @@ namespace SprinklerApp.ViewModels
 
                     var tanks = tanksDto.Select(t => TankMapper.ToModel(t));
 
-                    TankDisplays = (ObservableCollection<TankDisplayModel>)tanks.Select(t => new TankDisplayModel(t));
+                    TankDisplays = tanks.Select(t => new TankDisplayModel(t)).ToList();               
 
                 }
             }
@@ -58,6 +74,12 @@ namespace SprinklerApp.ViewModels
                     { "TankId", tank.Id }
                 };
             await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}", navigationParameter);
+        }
+
+        [RelayCommand]
+        public async Task AddTank()
+        {
+            await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}");
         }
     }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Model;
 using Model.Dto;
+using Model.Helpers;
 using Model.Mapper;
 
 
@@ -39,11 +40,19 @@ namespace GateApiSpirinklerApp.Controllers
             if (tank == null)
             {
                 return NotFound();
-            }         
+            }
 
             return Ok(TankMapper.ToDto(tank));
         }
 
+        // GET api/<TankController>/SearchByName/{name}
+        [HttpGet(RouteDictionary.Tank.SearchByNameRoute + "{name?}")]
+        public async Task<ActionResult<IEnumerable<TankDto>>> GetTankByName(string name)
+        {
+            var tanks = _unitOfWork.TankRepository.Specify(new TankByNameSpecification(name));
+            var tankDtos = tanks.Select(tank => TankMapper.ToDto(tank));
+            return Ok(tankDtos);
+        }
         // POST api/<TankController>
         [HttpPost]
         public async Task<ActionResult<TankDto>> PostTank([FromBody] TankDto tankDto)

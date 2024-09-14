@@ -7,7 +7,7 @@ namespace Model
     {
         public long Id { get; private set; }
         [StringLength(MaxNameLenght)]
-        public string Name { get; set; }
+        public string Name { get; private set; }
         public int Length { get; private set; }
         public int Width { get; private set; }
         public int Height { get; private set; }
@@ -32,73 +32,73 @@ namespace Model
             Id = id;
         }
 
-        public Result<int> SetLength(string length)
+        public Result SetLength(string length)
         {
             var result = int.TryParse(length, out int lengthInt);
             if (!result)
             {
-                return Result<int>.Failure(lengthInt, "Length must be a number");
+                return Result.Failure(lengthInt, "Length must be a number");
             }
             if (lengthInt < 0)
             {
-                return Result<int>.Failure(lengthInt, "Length must be greater than 0");
+                return Result.Failure(lengthInt, "Length must be greater than 0");
             }
             Length = lengthInt;
-            return Result<int>.Success(lengthInt);
+            return Result.Success(lengthInt);
         }
 
-        public Result<int> SetWidth(string width)
+        public Result SetWidth(string width)
         {
             var result = int.TryParse(width, out int widhtInt);
             if (!result)
             {
-                return Result<int>.Failure(widhtInt, "Width must be a number");
+                return Result.Failure(widhtInt, "Width must be a number");
             }
             if (widhtInt < 0)
             {
-                return Result<int>.Failure(widhtInt, "Width must be greater than 0");
+                return Result.Failure(widhtInt, "Width must be greater than 0");
             }
             Width = widhtInt;
-            return Result<int>.Success(widhtInt);
+            return Result.Success(widhtInt);
         }
 
-        public Result<int> SetHeight(string height)
+        public Result SetHeight(string height)
         {
             var result = int.TryParse(height, out int heightInt);
             if (!result)
             {
-                return Result<int>.Failure(heightInt, "Height must be a number");
+                return Result.Failure(heightInt, "Height must be a number");
             }
             if (heightInt < 0)
             {
-                return Result<int>.Failure(heightInt, "Height must be greater than 0");
+                return Result.Failure(heightInt, "Height must be greater than 0");
             }
             Height = heightInt;
-            return Result<int>.Success(heightInt);
+            return Result.Success(heightInt);
         }
 
-        public Result<double> SetFillLevel(double fillLevel)
+        public Result SetFillLevel(double fillLevel)
         {
             if (fillLevel < 0 || fillLevel > 100)
             {
-                return Result<double>.Failure(fillLevel, "Fill level must be between 0 and 100");
+                return Result.Failure(fillLevel, "Fill level must be between 0 and 100");
             }
             FillLevel = fillLevel;
-            return Result<double>.Success(fillLevel);
+            return Result.Success(fillLevel);
         }
 
-        public Result<string> SetName(string name)
+        public Result SetName(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                return Result<string>.Failure(name, "Name cannot be empty");
+                return Result.Failure(name, "Name cannot be empty");
             }
             if(name.Length > MaxNameLenght)
             {
-                return Result<string>.Failure(name, $"Name cannot be longer than {MaxNameLenght} characters");
+                return Result.Failure(name, $"Name cannot be longer than {MaxNameLenght} characters");
             }
             Name = name;
-            return Result<string>.Success(name);
+            return Result.Success(name);
         }
 
 

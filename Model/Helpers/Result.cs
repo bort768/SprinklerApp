@@ -1,24 +1,24 @@
 ﻿
 namespace Model.Helpers
 {
-    public struct Result<T>
+    public struct Result
     {
-        public T Value { get; }
+        public object Value { get; }
         public bool IsSuccessful { get; private set; }
         public bool IsFailure => !IsSuccessful;
         public string Message { get; private set; }
 
-        private Result(T value, bool isSuccessful, string message)
+        private Result(object value, bool isSuccessful, string message)
         {
             Value = value;
             IsSuccessful = isSuccessful;
             Message = message;
         }
 
-        public static Result<T> Success(T value) => new Result<T>(value, true, string.Empty);
-        public static Result<T> Failure(T value, string errormessage) => new Result<T>(value, false, errormessage);
+        public static Result Success(object value) => new Result(value, true, string.Empty);
+        public static Result Failure(object  value, string errorMessage) => new Result(value, false, errorMessage);
 
-        public Result<T> Combine(params Result<T>[] results)
+        public Result Combine(params Result[] results)
         {
             var result = results.Where(r => r.IsFailure == true);
             if (result.Any())    
@@ -27,7 +27,7 @@ namespace Model.Helpers
                 IsSuccessful = true;
 
             var combinedMessage = string.Join(Environment.NewLine, results.Select(r => r.Message));
-            return new Result<T>(Value, IsSuccessful, combinedMessage);
+            return new Result(Value, IsSuccessful, combinedMessage);
         }
 
         public void SetMessage(string text)
