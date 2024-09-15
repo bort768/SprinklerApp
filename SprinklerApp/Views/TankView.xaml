@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="SprinklerApp.Views.TankView"
+             xmlns:controls="clr-namespace:SprinklerApp.Resources.Controls;assembly=SprinklerApp"
              xmlns:viewModel="clr-namespace:SprinklerApp.ViewModels"
              x:DataType="viewModel:TankViewModel"
              Title="{Binding Title}">
@@ -9,14 +10,18 @@
         <VerticalStackLayout >
             <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
                 <VerticalStackLayout>
+                    <Label Text="Name" FontSize="Large" Margin="5,5,5,0"/>
+                    <controls:EntryWithValidation Text="{Binding Name}" IsValid="{Binding NameIsValid}" ErrorMessage="{Binding NameErrorMessage}" />
+
                     <Label Text="Szerokość" FontSize="Large" Margin="5,5,5,0"/>
-                    <Entry Text="{Binding Width}" Keyboard="Numeric" Margin="5,0,5,5"/>
+                    <controls:EntryWithValidation Text="{Binding Width}" IsValid="{Binding WidthIsValid}" 
+                                                  ErrorMessage="{Binding WidthErrorMessage}"/>
 
                     <Label Text="Długość" FontSize="Large" Margin="5,0,5,0"/>
-                    <Entry Text="{Binding Length}" Keyboard="Numeric" Margin="5,0,5,5" />
+                    <controls:EntryWithValidation Text="{Binding Length}" IsValid="{Binding LengthIsValid}" ErrorMessage="{Binding LengthErrorMessage}" />
 
                     <Label Text="Wysokość" FontSize="Large" Margin="5,0,5,0"/>
-                    <Entry Text="{Binding Heigth}" Keyboard="Numeric" Margin="5,0,5,5"/>
+                    <controls:EntryWithValidation Text="{Binding Heigth}" IsValid="{Binding HeigthIsValid}" ErrorMessage="{Binding HeigthErrorMessage}" />
 
                     <Button Text="Save" Command="{Binding SaveDataCommand}"  Margin="5,10,5,5"/>
                 </VerticalStackLayout>
@@ -45,6 +50,13 @@
                     </Grid>
                     <Label Grid.Row="2" Text="{Binding TankVolume, StringFormat='{0} m^3'}" FontSize="Large" />
                 </Grid>
+            </Frame>
+
+            <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
+                <VerticalStackLayout>
+                    <Button Text="Go Back" Command="{Binding GoBackCommand}"  Margin="5,10,5,5"/>
+                    <Button Text="Delete" Command="{Binding DeleteTankCommand}"  Margin="5,10,5,5"/>
+                </VerticalStackLayout>
             </Frame>
         </VerticalStackLayout>
     </ScrollView>

@@ -10,7 +10,7 @@ using System.Text;
 
 namespace SprinklerApp.ViewModels
 {
-    public partial class TankViewModel : BaseViewModel
+    public partial class TankViewModel : BaseViewModel, IQueryAttributable
     {
         private Tank tank = new Tank();
 
@@ -60,8 +60,8 @@ namespace SprinklerApp.ViewModels
                         return;
 
                     //TODO: It will get list of tanks, need to change it to get only one tank
-                    var tanks = JsonConvert.DeserializeObject<IEnumerable<TankDto>>(json);
-                    tank = TankMapper.ToModel(tanks.FirstOrDefault());
+                    var tanks = JsonConvert.DeserializeObject<TankDto>(json);
+                    tank = TankMapper.ToModel(tanks);
 
                     if (tank is null)
                         return;
@@ -123,17 +123,110 @@ namespace SprinklerApp.ViewModels
             }
         }
 
+        [RelayCommand]
+        public async Task DeleteTank()
+        {
+            using (var client = new HttpClient())
+            {
+                //bool answer = await DisplayAlert("Potwierdzenie", "Czy na pewno chcesz usunąć dany zbiornik?", "Tak", "Nie");
+                //if (answer is false)
+                //    return;
+            
+            HttpResponseMessage? response = new();
+                try
+                {
+                    if (tankId is null)
+                        return;
+
+                    response = await client.DeleteAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tankId}");
+                }
+                catch (Exception e)
+                {
+                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                }
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await ToastSaveSuccess("Tank deleted successfully.");
+                }
+                else
+                {
+                    await ToastSaveFail("Failed to delete tank.");
+                }
+            }
+            await GoBack();
+        }
+
+        [RelayCommand]
+        public async Task GoBack()
+        {
+            await Shell.Current.GoToAsync("..");
+        } 
+
         [ObservableProperty]
         private string length;
+
+        partial void OnLengthChanged(string value)
+        {
+            var result = tank.SetLength(value);
+            LengthIsValid = result.IsFailure;
+            LengthErrorMessage = result.Message;
+        }
+
+        [ObservableProperty]
+        private bool lengthIsValid;
+
+        [ObservableProperty]
+        private string lengthErrorMessage;
 
         [ObservableProperty]
         private string width;
 
+        partial void OnWidthChanged(string value)
+        {
+            var result  = tank.SetWidth(value);
+            WidthIsValid = result.IsFailure;
+            WidthErrorMessage = result.Message;
+
+        }
+
+        [ObservableProperty]
+        public bool widthIsValid;
+
+        [ObservableProperty]
+        public string widthErrorMessage;
+
         [ObservableProperty]
         private string heigth;
 
+        partial void OnHeigthChanged(string value)
+        {
+            var result = tank.SetHeight(value);
+            HeigthIsValid = result.IsFailure;
+            HeigthErrorMessage = result.Message;
+        }
+
+        [ObservableProperty]
+        private bool heigthIsValid;
+
+        [ObservableProperty]
+        private string heigthErrorMessage;
+
         [ObservableProperty]
         private string name;
+
+        partial void OnNameChanged(string value)
+        {
+            var result = tank.SetName(value);
+            NameIsValid = result.IsFailure;
+            NameErrorMessage = result.Message;
+        }
+
+        [ObservableProperty]
+        private bool nameIsValid;
+
+        [ObservableProperty]
+        private string nameErrorMessage;
 
         [ObservableProperty]
         private double fillLevel;

@@ -34,6 +34,11 @@ namespace Model
 
         public Result SetLength(string length)
         {
+            if (string.IsNullOrWhiteSpace(length))
+            {
+                return Result.Failure(length, "Length cannot be empty");
+            }
+
             var result = int.TryParse(length, out int lengthInt);
             if (!result)
             {
@@ -49,6 +54,11 @@ namespace Model
 
         public Result SetWidth(string width)
         {
+            if (string.IsNullOrWhiteSpace(width))
+            {
+                return Result.Failure(width, "Width cannot be empty");
+            }
+
             var result = int.TryParse(width, out int widhtInt);
             if (!result)
             {
@@ -64,6 +74,11 @@ namespace Model
 
         public Result SetHeight(string height)
         {
+            if (string.IsNullOrWhiteSpace(height))
+            {
+                return Result.Failure(height, "Height cannot be empty");
+            }
+
             var result = int.TryParse(height, out int heightInt);
             if (!result)
             {
@@ -79,9 +94,9 @@ namespace Model
 
         public Result SetFillLevel(double fillLevel)
         {
-            if (fillLevel < 0 || fillLevel > 100)
+            if (fillLevel < 0)
             {
-                return Result.Failure(fillLevel, "Fill level must be between 0 and 100");
+                return Result.Failure(fillLevel, "Fill level must be greater than 0");
             }
             FillLevel = fillLevel;
             return Result.Success(fillLevel);

@@ -13,17 +13,21 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="auto" />
-                </Grid.ColumnDefinitions>
-                <SearchBar Grid.Column="0" Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding LoadItemsCommand}" />
-                <CheckBox Grid.Column="1" IsChecked="{Binding SortByCapacity}"/>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <SearchBar Grid.Row="0" Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding LoadItemsCommand}"  Margin="5"/>
+                <HorizontalStackLayout Grid.Row="1">
+                    <Label Text=" Sort by Capacity" Margin="5,10,0,5" />
+                    <CheckBox IsChecked="{Binding SortByCapacity}"/>
+                </HorizontalStackLayout>
+                
             </Grid>
             <CollectionView Grid.Row="1" ItemsSource="{Binding TankDisplays}" SelectionMode="Single">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="viewModels:TankDisplayModel">
-                        <Grid Padding="10">
+                        <Grid Padding="10" Margin="20">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
@@ -32,10 +36,16 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" /> 
                             </Grid.ColumnDefinitions>
-                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Id}" />
-                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Name}" />
-                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Capacity}" />
-                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FillLevel}" />
+                            <Grid.GestureRecognizers>
+                                <TapGestureRecognizer 
+                                    NumberOfTapsRequired="2" 
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:TanksViewModel}}, Path=TankSelectedCommand}" 
+                                    CommandParameter="{Binding .}" />
+                            </Grid.GestureRecognizers>
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding Id}" Margin="5" />
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Name}" Margin="5" />
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding Capacity}" Margin="5" />
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FillLevel}" Margin="5" />
                         </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

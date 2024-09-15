@@ -18,6 +18,11 @@ namespace SprinklerApp.ViewModels
         [ObservableProperty]
         string searchText;
 
+        partial void OnSearchTextChanged(string value)
+        {
+             LoadItems();
+        }
+
         [ObservableProperty]
         bool searchByName;
 
@@ -38,7 +43,7 @@ namespace SprinklerApp.ViewModels
                 {
                         var searchRoute = string.IsNullOrEmpty(SearchText)
                             ? $"{ApiSettings.Instance.ApiAddress}/Tank"
-                            : $"{ApiSettings.Instance.ApiAddress}/Tank" +
+                            : $"{ApiSettings.Instance.ApiAddress}/Tank/" +
                                 $"{RouteDictionary.Tank.SearchByNameRoute + SearchText}";
                         response = await client.GetAsync(searchRoute);
                 }
@@ -63,6 +68,10 @@ namespace SprinklerApp.ViewModels
                     TankDisplays = tanks.Select(t => new TankDisplayModel(t)).ToList();               
 
                 }
+                else
+                {
+                    await ToastSaveFail($"Something went wrong: {response}");
+                }
             }
         }
 
@@ -81,6 +90,7 @@ namespace SprinklerApp.ViewModels
         {
             await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}");
         }
+
     }
 
 }
