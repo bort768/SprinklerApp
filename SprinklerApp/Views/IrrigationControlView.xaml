@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="SprinklerApp.Views.IrrigationControlView"
+             xmlns:viewModels="clr-namespace:SprinklerApp.ViewModels;assembly=SprinklerApp"
+             x:DataType="viewModels:IrrigationControlViewModel"
+             Title="IrrigationControlView">
+    <VerticalStackLayout BackgroundColor="{StaticResource Gray600}">
+        <!--<SelectableItemsView ItemsSource="{Binding ListOfTanks}"/>-->
+        <Label Text="Set minimum water level in tank" FontSize="Large" Margin="5,5,5,0"/>
+        <Entry Text="{Binding MinimumTankLevel, StringFormat='{0}%'}"/>
+
+        <HorizontalStackLayout>
+            <Label Text="Start Time" Margin="5,5,0,0"/>
+            <TimePicker Time="{Binding StartTime}" Margin="5,5,0,0"/>
+
+            <Label Text="End Time" Margin="5,5,0,0"/>
+            <TimePicker Time="{Binding EndTime}" Margin="5,5,0,0"/>
+        </HorizontalStackLayout>
+
+        <!--<HorizontalStackLayout>
+            <Label Text="Duration" Margin="5,5,0,0"/>
+            <Entry Text="{Binding Duration}" Margin="5,5,0,0"/>
+        </HorizontalStackLayout>-->
+
+        <HorizontalStackLayout>
+            <Label Text="Irrigation by day" Margin="5,5,0,0"/>
+            <RadioButton IsChecked="{Binding IsIrrigationByDayEnabled}" />
+
+            <Label Text="Irrigation control manual" Margin="5,5,0,0"/>
+            <RadioButton IsChecked="{Binding IsIrrigationControlMaunal}"/>
+
+            <Label Text="Irrigation control automatic" Margin="5,5,0,0"/>
+            <RadioButton IsChecked="{Binding IsIrrigationControlAutomatic}"/>
+
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout IsVisible="{Binding IsIrrigationByDayEnabled}">
+            <Label Text="Active Days" Margin="5,5,0,0"/>
+            <Label Text="Mon" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[0].IsActive}"/>
+            <Label Text="Tue" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[1].IsActive}"/>
+            <Label Text="Wed" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[2].IsActive}"/>
+            <Label Text="Thu" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[3].IsActive}"/>
+            <Label Text="Fri" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[4].IsActive}"/>
+            <Label Text="Sat" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[5].IsActive}"/>
+            <Label Text="Sun" Margin="5,0,5,5" />
+            <CheckBox IsChecked="{Binding IrrigationSchedules[6].IsActive}"/>
+        </HorizontalStackLayout>
+
+        <HorizontalStackLayout IsVisible="{Binding IsIrrigationControlMaunal}">
+            <Button Text="Start Irrigation" Command="{Binding StartIrrigationManualCommand}"/>
+            <Button Text="Stop Irrigation" Command="{Binding StopIrrigationManualCommand}"/>
+        </HorizontalStackLayout>
+        
+        <CollectionView ItemsSource="{Binding ListOfSprinklers}"
+                    SelectionMode="Multiple"
+                    SelectionChangedCommand="{Binding SelectionChangedCommand}"
+                    >
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="viewModels:SprinklerDisplayModel">
+                    <StackLayout>
+                        <Label Text="{Binding Name}" />
+                    </StackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Button Text="Save" Command="{Binding SaveIrrigationScheduleCommand}"  Margin="5,10,5,5"/>
+        
+        
+    </VerticalStackLayout>
+</ContentPage>

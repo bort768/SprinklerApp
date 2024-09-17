@@ -13,6 +13,7 @@ namespace SprinklerApp
             Routing.RegisterRoute($"{nameof(SettingsView)}", typeof(SettingsView));
             Routing.RegisterRoute($"{nameof(TanksView)}", typeof(TanksView));
             Routing.RegisterRoute($"{nameof(TanksView)}/{nameof(TankView)}", typeof(TankView));
+            Routing.RegisterRoute($"{nameof(IrrigationControlView)}", typeof(IrrigationControlView));
         }
     }
 }
