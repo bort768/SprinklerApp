@@ -60,7 +60,7 @@
         
         <CollectionView ItemsSource="{Binding ListOfSprinklers}"
                     SelectionMode="Multiple"
-                    SelectionChangedCommand="{Binding SelectionChangedCommand}"
+                    SelectionChangedCommand="{Binding CVSprinklerSelectionChangedCommand}"
                     >
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="viewModels:SprinklerDisplayModel">
@@ -70,6 +70,11 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <Button Text="Add Sprinkler" Command="{Binding AddSprinklerCommand}" Margin="5,10,5,5"/>
+        <Button Text="Remove selected Sprinkler" Command="{Binding RemoveSprinklerCommand}" Margin="5,10,5,5"/>
+
+        <Label Text="" />
 
         <Button Text="Save" Command="{Binding SaveIrrigationScheduleCommand}"  Margin="5,10,5,5"/>
         

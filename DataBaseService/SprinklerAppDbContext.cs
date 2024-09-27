@@ -14,6 +14,10 @@ namespace DataBaseService
         public DbSet<LocalNames> LocalNames { get; set; }
         public DbSet<Tank> Tanks { get; set; }
         public DbSet<Settings> Settings { get; set; }
+        public DbSet<Sprinkler> Sprinklers { get; set; }
+        public DbSet<HistoryOfIrrigation> HistoryOfIrrigations { get; set; }
+        public DbSet<HistoryOfTankWaterLevel> HistoryOfTankWaterLevels { get; set; }
+        public DbSet<IrrigationSchedule> IrrigationSchedules { get; set; }
 
         public SprinklerAppDbContext()
         {

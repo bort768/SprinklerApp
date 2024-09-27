@@ -10,6 +10,7 @@ using System.Text;
 
 namespace SprinklerApp.ViewModels
 {
+    //TODO: 22/09/2024: Add Tank fill history with microcharts
     public partial class TankViewModel : BaseViewModel, IQueryAttributable
     {
         private Tank tank = new Tank();

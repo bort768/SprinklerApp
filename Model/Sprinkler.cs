@@ -1,10 +1,5 @@
 ﻿using Model.Helpers;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model
 {
@@ -17,6 +12,10 @@ namespace Model
 
         private const int MaxNameLenght = 250;
 
+        //TODO: Add properties later
+        // SprinklerType
+        // SprinklerStatus
+        // SprinklerZone
         public Sprinkler(long id)
         {
             Id = id;
@@ -34,6 +33,12 @@ namespace Model
             }
             Name = name;
             return Result.Success(name);
+        }
+
+        public Result SetIsActive(bool isActive)
+        {
+            IsActive = isActive;
+            return Result.Success(isActive);
         }
     }
 }

@@ -67,7 +67,7 @@ namespace GateApiSpirinklerApp.Controllers
 
         // PUT api/<TankController>/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutTank(long id, TankDto tankDto)
+        public async Task<IActionResult> PutTank(long id, [FromBody] TankDto tankDto)
         {
             var tank = TankMapper.ToModel(tankDto);
 

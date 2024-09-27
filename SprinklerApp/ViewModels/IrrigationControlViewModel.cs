@@ -52,7 +52,6 @@ namespace SprinklerApp.ViewModels
             AddIrrigationSchedule(DayOfWeek.Sunday, TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero, false);
         }
 
-
         public void AddIrrigationSchedule(DayOfWeek day, TimeSpan startTime, TimeSpan endTime, TimeSpan duration, bool isActive)
         {
             IrrigationSchedules.Add(new IrrigationSchedule
@@ -103,7 +102,8 @@ namespace SprinklerApp.ViewModels
             //TODO : Implement the logic to save the irrigation schedule
         }
 
-        public void SelectionChanged(SprinklerDisplayModel sprinklerDisplayModel)
+        [RelayCommand]
+        public void CVSprinklerSelectionChanged(SprinklerDisplayModel sprinklerDisplayModel)
         {
             sprinklerDisplayModel.IsSelected = !sprinklerDisplayModel.IsSelected;
         }

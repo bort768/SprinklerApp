@@ -20,6 +20,19 @@ namespace DataBaseService.Infrastructure
             }
         }
 
+        private GenericRepository<Sprinkler>? sprinklerRepository;
+        public GenericRepository<Sprinkler> SprinklerRepository
+        {
+            get
+            {
+                if (sprinklerRepository == null)
+                {
+                    sprinklerRepository = new GenericRepository<Sprinkler>(context);
+                }
+                return sprinklerRepository;
+            }
+        }
+
         public UnitOfWork(SprinklerAppDbContext sprinklerAppDbContext)
         {
             context = sprinklerAppDbContext;
