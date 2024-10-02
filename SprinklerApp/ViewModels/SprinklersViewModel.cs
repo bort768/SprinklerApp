@@ -1,16 +1,11 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Model;
 using Model.Dto;
 using Model.Helpers;
 using Model.Mapper;
 using Newtonsoft.Json;
 using SprinklerApp.Helpers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SprinklerApp.Views;
 
 namespace SprinklerApp.ViewModels
 {
@@ -61,14 +56,13 @@ namespace SprinklerApp.ViewModels
                     if (string.IsNullOrEmpty(json))
                         return;
 
-                    //TODO: 23/09/2024: Add a mapper for sprinkler and DTO
                     var sprinklerDto = JsonConvert.DeserializeObject<IEnumerable<SprinklerDto>>(json);
                     if (sprinklerDto is null)
                         return;
 
                     var tanks = sprinklerDto.Select(s => SprinklerMapper.ToModel(s));
 
-                    sprinklerDisplayModels = tanks.Select(t => new SprinklerDisplayModel(t)).ToList();
+                    SprinklerDisplayModels = tanks.Select(t => new SprinklerDisplayModel(t)).ToList();
 
                 }
                 else
@@ -79,19 +73,19 @@ namespace SprinklerApp.ViewModels
         }
 
         [RelayCommand]
-        public async Task SprinklerSelected(TankDisplayModel tank)
+        public async Task SprinklerSelected(SprinklerDisplayModel sprinklerDisplay)
         {
             var navigationParameter = new ShellNavigationQueryParameters
                 {
-                    { "TankId", tank.Id }
+                    { ParamDictionary.SprinklerId, sprinklerDisplay.Id }
                 };
-            //await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}", navigationParameter);
+            await Shell.Current.GoToAsync($"{nameof(SprinklerView)}/{nameof(SprinklerView)}", navigationParameter);
         }
 
         [RelayCommand]
         public async Task AddSprinkler()
         {
-            //await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}");
+            await Shell.Current.GoToAsync($"{nameof(SprinklerView)}/{nameof(SprinklerView)}");
         }
 
     }

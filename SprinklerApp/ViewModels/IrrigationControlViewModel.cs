@@ -79,7 +79,7 @@ namespace SprinklerApp.ViewModels
         //}
 
         [RelayCommand]
-        public async void StartIrrigationManual()
+        public async Task StartIrrigationManual()
         {
             //TODO : Implement the logic to start irrigation
             if (SelectedTank.FillLevel < MinimumTankLevel)

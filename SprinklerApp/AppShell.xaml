@@ -23,4 +23,8 @@
     <FlyoutItem Title="Irrigation Control">
         <ShellContent ContentTemplate="{DataTemplate view:IrrigationControlView}" />
     </FlyoutItem>
+
+    <FlyoutItem Title="Sprinklers">
+        <ShellContent ContentTemplate="{DataTemplate view:SprinklersView}" />
+    </FlyoutItem>
 </Shell>

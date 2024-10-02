@@ -19,13 +19,12 @@ namespace SprinklerApp.ViewModels
 
         public TankViewModel()
         {
-            //LoadTankInfo().ConfigureAwait(false);
         }
 
         //TODO 14/09/2024: Check if this works. It should be called when the user navigates to the page
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (query.TryGetValue("TankId", out var tankIdValue) && tankIdValue is long id)
+            if (query.TryGetValue(ParamDictionary.TankId, out var tankIdValue) && tankIdValue is long id)
             {
                 tankId = id;
             }
@@ -44,25 +43,29 @@ namespace SprinklerApp.ViewModels
                 try
                 {
                     if (tankId is null)
+                    {
+                        IsDeleteButtonVisible = false;
                         return;
+                    }
+
                     
-                    response = await client.GetAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tankId}");
+                    response = await client.GetAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank, tankId));
                 }
                 catch (Exception e)
                 {
                     await ToastSaveFail($"Something went wrong: {e.Message}");
                 }
                 
-
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
                     if (string.IsNullOrEmpty(json))
                         return;
 
-                    //TODO: It will get list of tanks, need to change it to get only one tank
-                    var tanks = JsonConvert.DeserializeObject<TankDto>(json);
-                    tank = TankMapper.ToModel(tanks);
+                    var tankDto = JsonConvert.DeserializeObject<TankDto>(json);
+                    if (tankDto == null) return;
+
+                    tank = TankMapper.ToModel(tankDto);
 
                     if (tank is null)
                         return;
@@ -89,6 +92,11 @@ namespace SprinklerApp.ViewModels
                 tank.SetWidth(Width), tank.SetName(Name));
             if (result.IsFailure)
             {
+                OnHeigthChanged(Heigth);
+                OnLengthChanged(Length);
+                OnWidthChanged(Width);
+                OnNameChanged(Name);
+
                 await ToastSaveFail(result.Message);
                 return;
             }
@@ -97,6 +105,7 @@ namespace SprinklerApp.ViewModels
             await SaveDataToDb();
         }
 
+        //TODO: When there is no api address crash to desktop // probably fixed
         private async Task SaveDataToDb()
         {
             using (var client = new HttpClient())
@@ -106,11 +115,26 @@ namespace SprinklerApp.ViewModels
                 var json = JsonConvert.SerializeObject(tankDto);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                if(tank.Id == 0)
-                    response = await client.PostAsync($"{ApiSettings.Instance.ApiAddress}/Tank", content);
-                else
+                try
                 {
-                    response = await client.PostAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tank.Id}", content);
+                    var apiAddress = ApiSettings.Instance.ApiAddress;
+                    if (string.IsNullOrEmpty(apiAddress))
+                    {
+                        await ToastSaveFail("API address is missing.");
+                    }
+                    if (tankId is null)
+                    {
+                        response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank), content);
+                    }
+                    else
+                    {
+                        response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank, tankId), content);
+                    }
+                }
+                catch (Exception e)
+                {
+                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                    return;
                 }
 
                 if (response.IsSuccessStatusCode)
@@ -139,7 +163,7 @@ namespace SprinklerApp.ViewModels
                     if (tankId is null)
                         return;
 
-                    response = await client.DeleteAsync($"{ApiSettings.Instance.ApiAddress}/Tank/{tankId}");
+                    response = await client.DeleteAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank, tankId));
                 }
                 catch (Exception e)
                 {
@@ -236,7 +260,10 @@ namespace SprinklerApp.ViewModels
         private double volumeFillLevel;
 
         [ObservableProperty]
-        public double tankVolume;
+        private double tankVolume;
+
+        [ObservableProperty]
+        private bool isDeleteButtonVisible;
     }
 
 }

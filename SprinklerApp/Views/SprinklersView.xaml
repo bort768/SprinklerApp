@@ -35,14 +35,12 @@
                                 <Grid.GestureRecognizers>
                                     <TapGestureRecognizer 
                                  NumberOfTapsRequired="2" 
-                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewModels:TanksViewModel}}, Path=TankSelectedCommand}" 
+                                 Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:SprinklersViewModel}}, Path=SprinklerSelectedCommand}" 
                                  CommandParameter="{Binding .}" />
                                 </Grid.GestureRecognizers>
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Id}" Margin="5" />
-                                <Label Grid.Row="1" Grid.Column="0" Text="{Binding Name}" Margin="5" />
-                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Capacity}" Margin="5" />
-                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding FillLevel}" Margin="5" />
-                            </Grid>
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding Name}" Margin="5" />
+                        </Grid>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
@@ -51,7 +49,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button  Grid.Column="2" Text="Add" Command="{Binding AddTankCommand}" />
+                    <Button  Grid.Column="2" Text="Add" Command="{Binding AddSprinklerCommand}" />
                 </Grid>
             </Grid>
         </RefreshView>

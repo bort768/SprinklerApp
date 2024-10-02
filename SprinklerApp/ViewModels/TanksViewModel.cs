@@ -42,8 +42,8 @@ namespace SprinklerApp.ViewModels
                 try
                 {
                         var searchRoute = string.IsNullOrEmpty(SearchText)
-                            ? $"{ApiSettings.Instance.ApiAddress}/Tank"
-                            : $"{ApiSettings.Instance.ApiAddress}/Tank/" +
+                            ? GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank)
+                            : GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank) +
                                 $"{RouteDictionary.Tank.SearchByNameRoute + SearchText}";
                         response = await client.GetAsync(searchRoute);
                 }
@@ -51,7 +51,6 @@ namespace SprinklerApp.ViewModels
                 {
                     await ToastSaveFail($"Something went wrong: {e.Message}");
                 }
-
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -80,7 +79,7 @@ namespace SprinklerApp.ViewModels
         {
             var navigationParameter = new ShellNavigationQueryParameters
                 {
-                    { "TankId", tank.Id }
+                    { ParamDictionary.TankId, tank.Id }
                 };
             await Shell.Current.GoToAsync($"{nameof(TanksView)}/{nameof(TankView)}", navigationParameter);
         }

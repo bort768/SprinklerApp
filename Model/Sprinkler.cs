@@ -16,6 +16,11 @@ namespace Model
         // SprinklerType
         // SprinklerStatus
         // SprinklerZone
+
+        public Sprinkler()
+        {
+        }
+
         public Sprinkler(long id)
         {
             Id = id;
