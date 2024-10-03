@@ -1,5 +1,3 @@
-
-
 using SprinklerApp.ViewModels;
 
 namespace SprinklerApp.Views;

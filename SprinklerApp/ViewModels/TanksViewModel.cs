@@ -44,7 +44,7 @@ namespace SprinklerApp.ViewModels
                         var searchRoute = string.IsNullOrEmpty(SearchText)
                             ? GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank)
                             : GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank) +
-                                $"{RouteDictionary.Tank.SearchByNameRoute + SearchText}";
+                                $"/{RouteDictionary.Tank.SearchByNameRoute + SearchText}";
                         response = await client.GetAsync(searchRoute);
                 }
                 catch (Exception e)

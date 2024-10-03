@@ -33,6 +33,19 @@ namespace DataBaseService.Infrastructure
             }
         }
 
+        private GenericRepository<IrrigationSchedule>? irrigationScheduleRepository;
+        public GenericRepository<IrrigationSchedule> IrrigationScheduleRepository
+        {
+            get
+            {
+                if (irrigationScheduleRepository == null)
+                {
+                    irrigationScheduleRepository = new GenericRepository<IrrigationSchedule>(context);
+                }
+                return irrigationScheduleRepository;
+            }
+        }
+
         public UnitOfWork(SprinklerAppDbContext sprinklerAppDbContext)
         {
             context = sprinklerAppDbContext;

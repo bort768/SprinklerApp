@@ -1,9 +1,30 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:SprinklerApp.Resources.Controls;assembly=SprinklerApp"
+             xmlns:viewModel="clr-namespace:SprinklerApp.ViewModels"
+             x:DataType="viewModel:SprinklerViewModel"
              x:Class="SprinklerApp.Views.SprinklerView"
              Title="SprinklerView">
-    <VerticalStackLayout>
-        
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout>
+        <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
+            <VerticalStackLayout>
+                <Label Text="Id" FontSize="Large" Margin="5,5,5,0"/>
+
+                <Label Text="Name" FontSize="Large" Margin="5,5,5,0"/>
+                <controls:EntryWithValidation Text="{Binding Name}" IsValid="{Binding NameIsValid}" ErrorMessage="{Binding NameErrorMessage}" />
+
+                <Button Text="Save" Command="{Binding SaveDataCommand}"  Margin="5,10,5,5"/>
+            </VerticalStackLayout>
+        </Frame>
+
+        <Frame BackgroundColor="{StaticResource Gray600}" Margin="10">
+                <HorizontalStackLayout>
+                    <Button Text="Go Back" Command="{Binding GoBackCommand}"  Margin="5,10,5,5"/>
+                    <Button Text="Delete" Command="{Binding DeleteSprinklerCommand}" IsVisible="{Binding IsDeleteButtonVisible}"  Margin="5,10,5,5"/>
+                </HorizontalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

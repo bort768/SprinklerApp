@@ -27,6 +27,8 @@ namespace SprinklerApp
             builder.Services.AddTransient<TankViewModel>();
             builder.Services.AddSingleton<TanksView>();
             builder.Services.AddSingleton<TanksViewModel>();
+            builder.Services.AddSingleton<SprinklersView>();
+            builder.Services.AddTransient<SprinklerViewModel>();
 
 #if DEBUG
             builder.Logging.AddDebug();

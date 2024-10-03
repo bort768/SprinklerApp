@@ -38,6 +38,7 @@ namespace SprinklerApp.ViewModels
                 HttpResponseMessage? response = new();
                 try
                 {
+                    //Todo: dodać szukanie po nazwie
                     var searchRoute = string.IsNullOrEmpty(SearchText)
                         ? $"{ApiSettings.Instance.ApiAddress}/Sprinkler"
                         : $"{ApiSettings.Instance.ApiAddress}/Sprinkler/" +
@@ -48,7 +49,6 @@ namespace SprinklerApp.ViewModels
                 {
                     await ToastSaveFail($"Something went wrong: {e.Message}");
                 }
-
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -79,13 +79,13 @@ namespace SprinklerApp.ViewModels
                 {
                     { ParamDictionary.SprinklerId, sprinklerDisplay.Id }
                 };
-            await Shell.Current.GoToAsync($"{nameof(SprinklerView)}/{nameof(SprinklerView)}", navigationParameter);
+            await Shell.Current.GoToAsync($"{nameof(SprinklersView)}/{nameof(SprinklerView)}", navigationParameter);
         }
 
         [RelayCommand]
         public async Task AddSprinkler()
         {
-            await Shell.Current.GoToAsync($"{nameof(SprinklerView)}/{nameof(SprinklerView)}");
+            await Shell.Current.GoToAsync($"{nameof(SprinklersView)}/{nameof(SprinklerView)}");
         }
 
     }

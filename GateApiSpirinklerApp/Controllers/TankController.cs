@@ -27,7 +27,7 @@ namespace GateApiSpirinklerApp.Controllers
         public async Task<ActionResult<IEnumerable<TankDto>>> GetTank()
         {
             var tanks = await _unitOfWork.TankRepository.GetAllAsync();
-            var tankDtos = tanks.Select(tank => TankMapper.ToDto(tank));
+            var tankDtos = tanks.Select(TankMapper.ToDto);
             return Ok(tankDtos);
         }
 
@@ -46,11 +46,11 @@ namespace GateApiSpirinklerApp.Controllers
         }
 
         // GET api/<TankController>/SearchByName/{name}
-        [HttpGet(RouteDictionary.Tank.SearchByNameRoute + "{name?}")]
+        [HttpGet("SearchByName/" + "{name?}")]
         public async Task<ActionResult<IEnumerable<TankDto>>> GetTankByName(string name)
         {
             var tanks = _unitOfWork.TankRepository.Specify(new TankByNameSpecification(name));
-            var tankDtos = tanks.Select(tank => TankMapper.ToDto(tank));
+            var tankDtos = tanks.Select(TankMapper.ToDto);
             return Ok(tankDtos);
         }
         // POST api/<TankController>

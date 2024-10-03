@@ -55,7 +55,7 @@
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Button  Grid.Column="2" Text="Add" Command="{Binding AddTankCommand}" />
+                <Button  Grid.Column="2" Text="Add" Command="{Binding AddTankCommand}" Margin="5,0,5,5" />
             </Grid>
         </Grid>
     </RefreshView>

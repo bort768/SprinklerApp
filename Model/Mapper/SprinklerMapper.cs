@@ -1,9 +1,4 @@
 ﻿using Model.Dto;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Model.Mapper
 {
@@ -15,6 +10,7 @@ namespace Model.Mapper
             {
                 Id = sprinkler.Id,
                 Name = sprinkler.Name,
+                IsActive = sprinkler.IsActive
             };
         }
 
@@ -22,6 +18,7 @@ namespace Model.Mapper
         {
             var sprinkler = new Sprinkler(sprinklerDto.Id);
             sprinkler.SetName(sprinklerDto.Name);
+            sprinkler.SetIsActive(sprinklerDto.IsActive);
             return sprinkler;
         }
     }

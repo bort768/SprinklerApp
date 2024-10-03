@@ -9,6 +9,11 @@ namespace Model
         public DateTime Date { get; private set; }
         public double WaterLevel { get; private set; }
 
+        public HistoryOfTankWaterLevel()
+        {
+            
+        }
+
         public HistoryOfTankWaterLevel(long id, Tank tank, long tankId, DateTime date, double waterLevel)
         {
             Id = id;

@@ -7,7 +7,6 @@ using Model.Helpers;
 using Newtonsoft.Json;
 using SprinklerApp.Helpers;
 using System.Text;
-using static Model.Helpers.RouteDictionary;
 
 namespace SprinklerApp.ViewModels
 {
@@ -18,7 +17,7 @@ namespace SprinklerApp.ViewModels
 
         public SprinklerViewModel()
         {
-            
+            sprinkler = new Sprinkler();
         }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
@@ -42,15 +41,17 @@ namespace SprinklerApp.ViewModels
                 try
                 {
                     if (sprinklerId is null)
+                    {
+                        IsDeleteButtonVisible = false;
                         return;
-
+                    }
+                        
                     response = await client.GetAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler, sprinklerId));
                 }
                 catch (Exception e)
                 {
                     await ToastSaveFail($"Something went wrong: {e.Message}");
                 }
-
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -92,25 +93,32 @@ namespace SprinklerApp.ViewModels
         {
             using (var client = new HttpClient())
             {
-                HttpResponseMessage? response = new();
-                var sprinklerDto = SprinklerMapper.ToDto(sprinkler);
-                var json = JsonConvert.SerializeObject(sprinklerDto);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-                if (sprinklerId is null)
-                    response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler), content);
-                else
+                try
                 {
-                    response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler, sprinklerId), content);
+                    HttpResponseMessage? response = new();
+                    var sprinklerDto = SprinklerMapper.ToDto(sprinkler);
+                    var json = JsonConvert.SerializeObject(sprinklerDto);
+                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    var apiAddress = ApiSettings.Instance.ApiAddress;
+                    if (string.IsNullOrEmpty(apiAddress))
+                        await ToastSaveFail("API address is missing.");
+
+                    if (sprinklerId is null)
+                        response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler), content);
+                    else
+                        response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler, sprinklerId), content);
+
+                    if (response.IsSuccessStatusCode)
+                        await ToastSaveSuccess("Data saved successfully.");
+                    else
+                        await ToastSaveFail("Failed to save data to the database.");
                 }
 
-                if (response.IsSuccessStatusCode)
+                catch (Exception e)
                 {
-                    await ToastSaveSuccess("Data saved successfully.");
-                }
-                else
-                {
-                    await ToastSaveFail("Failed to save data to the database.");
+                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                    return;
                 }
             }
         }
@@ -160,7 +168,7 @@ namespace SprinklerApp.ViewModels
 
         partial void OnNameChanged(string value)
         {
-            var result = sprinkler.SetName(value);
+           var result = sprinkler.SetName(value);
             NameIsValid = result.IsFailure;
             NameErrorMessage = result.Message;
         }
@@ -176,6 +184,9 @@ namespace SprinklerApp.ViewModels
 
         [ObservableProperty]
         private string? id;
+
+        [ObservableProperty]
+        private bool isDeleteButtonVisible;
 
 
     }

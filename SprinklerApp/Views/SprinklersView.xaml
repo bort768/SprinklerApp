@@ -20,7 +20,7 @@
                 <SearchBar Grid.Row="0" Placeholder="Search" Text="{Binding SearchText}" SearchCommand="{Binding LoadItemsCommand}"  Margin="5"/>
 
             </Grid>
-                <CollectionView Grid.Row="1" ItemsSource="{Binding }" SelectionMode="Single">
+                <CollectionView Grid.Row="1" ItemsSource="{Binding SprinklerDisplayModels }" SelectionMode="Single">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="viewmodels:SprinklerDisplayModel">
                             <Grid Padding="10" Margin="20">
@@ -49,7 +49,7 @@
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <Button  Grid.Column="2" Text="Add" Command="{Binding AddSprinklerCommand}" />
+                    <Button  Grid.Column="2" Text="Add" IsEnabled="True"  Command="{Binding AddSprinklerCommand}" />
                 </Grid>
             </Grid>
         </RefreshView>
