@@ -1,7 +1,9 @@
 ﻿
+using Model.Mapper;
+
 namespace Model.Dto
 {
-    public class TankDto
+    public class TankDto : IDto
     {
         public long Id { get; set; }
         public int Length { get; set; }
@@ -12,5 +14,10 @@ namespace Model.Dto
         public double TankCapacity { get; set; }
         public double VolumeFillLevelInCubicMeters { get; set; }
         public string Name { get; set; }
+
+        public IModel ToModel()
+        {
+            return TankMapper.ToModel(this);
+        }
     }
 }

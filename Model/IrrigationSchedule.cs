@@ -1,10 +1,12 @@
 ﻿
+using Model.Dto;
 using Model.Helpers;
+using Model.Mapper;
 
 namespace Model
 {
 
-    public class IrrigationSchedule
+    public class IrrigationSchedule : IModel
     {
         public long Id { get; private set; }
         public DayOfWeek Day { get; set; }
@@ -59,5 +61,9 @@ namespace Model
             return Result.Success(minimumTankLevel);
         }
 
+        public IDto ToDto()
+        {
+            return IrrigationScheduleMapper.ToDto(this);
+        }
     }
 }

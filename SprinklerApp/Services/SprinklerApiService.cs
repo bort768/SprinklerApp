@@ -1,20 +1,16 @@
 ﻿using Model;
 using Model.Dto;
-using Model.Helpers;
 using Newtonsoft.Json;
 using SprinklerApp.ViewModels;
+using Model.Helpers;
 
 namespace SprinklerApp.Services
 {
-    public class TankApiService(HttpClient httpClient, string apiAddress)
+    public class SprinklerApiService(HttpClient httpClient, string apiAddress)
     {
         private readonly HttpClient _httpClient = httpClient;
         private readonly string _apiAddress = apiAddress;
 
-        /// <summary>
-        /// Get data from the database
-        /// </summary>
-        /// <returns>List of TankDisplayModel</returns>
         public async Task<Result> GetDataAsync()
         {
             HttpResponseMessage? response = new();
@@ -26,24 +22,17 @@ namespace SprinklerApp.Services
             {
                 return Result.Failure(null, $"Something went wrong: {e.Message}");
             }
-
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
                 if (string.IsNullOrEmpty(json))
                     return Result.Failure(null, "Json is empty");
-
-                var tanksDto = JsonConvert.DeserializeObject<IEnumerable<TankDto>>(json);
-                if (tanksDto is null)
+                var sprinklersDto = JsonConvert.DeserializeObject<IEnumerable<SprinklerDto>>(json);
+                if (sprinklersDto is null)
                     return Result.Failure(null, "De serialization went wrong");
-
-                //var tanks = tanksDto.Select(TankMapper.ToModel);
-
-                var tanks = tanksDto.Select(t => new TankDisplayModel((Tank)t.ToModel())).ToList();
-
-                return Result.Success(tanks);
+                var sprinklers = sprinklersDto.Select(s => new SprinklerDisplayModel((Sprinkler)s.ToModel()));
+                return Result.Success(sprinklers);
             }
-
             else
                 return Result.Failure(null, "Failed to get data from the database.");
         }

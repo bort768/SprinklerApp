@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Model.Dto
 {
-    internal interface IDto
+    public interface IDto
     {
+        IModel ToModel();
     }
 }

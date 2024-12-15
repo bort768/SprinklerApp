@@ -1,9 +1,11 @@
-﻿using Model.Helpers;
+﻿using Model.Dto;
+using Model.Helpers;
+using Model.Mapper;
 using System.ComponentModel.DataAnnotations;
 
 namespace Model
 {
-    public class Sprinkler
+    public class Sprinkler : IModel
     {
         public long Id { get; private set; }
         [StringLength(MaxNameLenght)]
@@ -44,6 +46,11 @@ namespace Model
         {
             IsActive = isActive;
             return Result.Success(isActive);
+        }
+
+        public IDto ToDto()
+        {
+            return SprinklerMapper.ToDto(this);
         }
     }
 }

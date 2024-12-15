@@ -47,8 +47,7 @@ namespace SprinklerApp.ViewModels
                         IsDeleteButtonVisible = false;
                         return;
                     }
-
-                    
+                 
                     response = await client.GetAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank, tankId));
                 }
                 catch (Exception e)

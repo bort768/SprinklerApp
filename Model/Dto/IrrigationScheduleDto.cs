@@ -1,7 +1,9 @@
 ﻿
+using Model.Mapper;
+
 namespace Model.Dto
 {
-    public class IrrigationScheduleDto
+    public class IrrigationScheduleDto : IDto
     {
         public long Id { get; set; }
         public DayOfWeek Day { get; set; }
@@ -14,5 +16,10 @@ namespace Model.Dto
         public Tank Tank { get; set; }
         public IEnumerable<Sprinkler> Sprinklers { get; set; }
         public IrrigationMode Mode { get; set; }
+
+        public IModel ToModel()
+        {
+            return IrrigationScheduleMapper.ToModel(this);
+        }
     }
 }

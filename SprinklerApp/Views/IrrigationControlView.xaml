@@ -67,6 +67,7 @@
         <CollectionView ItemsSource="{Binding ListOfSprinklers}"
                     SelectionMode="Multiple"
                     SelectionChangedCommand="{Binding CollectionViewSelectionChangedCommand}"
+                         HeightRequest="50"
                     >
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="viewModels:SprinklerDisplayModel">
@@ -82,22 +83,23 @@
         <Button Text="Remove selected Sprinkler" Command="{Binding RemoveSprinklerCommand}" Margin="5,10,5,5"/>-->
 
         <CollectionView ItemsSource="{Binding ListOfTanks}"
-                    SelectionMode="Multiple"
-                    SelectionChangedCommand="{Binding CollectionViewSelectionChangedCommand}"
-                    >
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedTank}"
+                        SelectionChangedCommand="{Binding CollectionViewSelectionChangedCommand}"
+                        SelectionChangedCommandParameter="{Binding SelectedTank}"
+                        HeightRequest="50">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="viewModels:TankDisplayModel">
                     <StackLayout>
                         <Label Text="{Binding Id}" />
                         <Label Text="{Binding Name}" />
+                        <CheckBox IsChecked="{Binding IsSelected}"/>
                     </StackLayout>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-
         <Button Text="Save" Command="{Binding SaveIrrigationScheduleCommand}"  Margin="5,10,5,5"/>
-        
-        
+               
     </VerticalStackLayout>
 </ContentPage>

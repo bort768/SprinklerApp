@@ -1,9 +1,11 @@
-﻿using Model.Helpers;
+﻿using Model.Dto;
+using Model.Helpers;
+using Model.Mapper;
 using System.ComponentModel.DataAnnotations;
 
 namespace Model
 {
-    public class Tank
+    public class Tank : IModel
     {
         public long Id { get; private set; }
         [StringLength(MaxNameLenght)]
@@ -145,5 +147,9 @@ namespace Model
             Height = height;
         }
 
+        public IDto ToDto()
+        {
+            return TankMapper.ToDto(this);
+        }
     }
 }

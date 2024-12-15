@@ -1,9 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Model;
-using Model.Dto;
-using Model.Mapper;
-using Newtonsoft.Json;
 using SprinklerApp.Factories;
 using SprinklerApp.Helpers;
 using SprinklerApp.Helpers.Interfaces;
@@ -83,7 +80,7 @@ namespace SprinklerApp.ViewModels
 
         public IrrigationControlViewModel()
         {
-            irrigationSchedules = new List<IrrigationSchedule>();
+            irrigationSchedules = [];
             AddIrrigationSchedule(DayOfWeek.Monday, TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero, false);
             AddIrrigationSchedule(DayOfWeek.Tuesday, TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero, false);
             AddIrrigationSchedule(DayOfWeek.Wednesday, TimeSpan.Zero, TimeSpan.Zero, TimeSpan.Zero, false);
@@ -124,38 +121,47 @@ namespace SprinklerApp.ViewModels
 
         public override async Task OnNavigatedToAsync()
         {
-            
+            await LoadTankInfo();
+            await LoadSprinklers();
         }
 
         private async Task LoadTankInfo()
         {
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            try
             {
-                HttpResponseMessage? response = new();
-                try
+                var tankApiService = new TankApiService(client, GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank));
+                var result = await tankApiService.GetDataAsync();
+                if (result.IsFailure)
                 {
-                    response = await client.GetAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank));
+                    await ToastSaveFail(result.Message);
+                    return;
                 }
-                catch (Exception e)
+                ListOfTanks = (List<TankDisplayModel>)result.Value;
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
+            }         
+        }
+
+        private async Task LoadSprinklers()
+        {
+            using var client = new HttpClient();
+            try
+            {
+                var sprinklerApiService = new SprinklerApiService(client, GetApiAddress.GetAddress(GetApiAddress.ApiType.Sprinkler));
+                var result = await sprinklerApiService.GetDataAsync();
+                if (result.IsFailure)
                 {
-                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                    await ToastSaveFail(result.Message);
+                    return;
                 }
-
-                if (response.IsSuccessStatusCode)
-                {
-                    var json = await response.Content.ReadAsStringAsync();
-                    if (string.IsNullOrEmpty(json))
-                        return;
-
-                    var tanksDto = JsonConvert.DeserializeObject<IEnumerable<TankDto>>(json);
-                    if (tanksDto is null)
-                        return;
-
-                    var tanks = tanksDto.Select(TankMapper.ToModel);
-
-                    ListOfTanks = tanks.Select(t => new TankDisplayModel(t)).ToList();
-
-                }
+                ListOfSprinklers = (List<SprinklerDisplayModel>)result.Value;
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
             }
         }
 
@@ -173,28 +179,24 @@ namespace SprinklerApp.ViewModels
                 return;
             }
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            try
             {
-                try
-                {
-                    var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
-                    var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, true);
-                    var irrigationScheduleDto = IrrigationScheduleMapper.ToDto(irrigationSchedule);
+                var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
+                var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, true);
 
-                    
-                    var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
-                    var response = await irrigationApiService.SendDataAsync(irrigationScheduleDto);
+                var irrigationApiService = new ApiService<IrrigationSchedule>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataAsync(irrigationSchedule);
 
-                    if (response.IsSuccessful)
-                        await ToastSaveSuccess("Data saved successfully.");
-                    else
-                        await ToastSaveFail(response.Message);
-                }
-                catch (Exception e)
-                {
-                    await ToastSaveFail($"Something went wrong: {e.Message}");
-                    return;
-                }
+                if (response.IsSuccessful)
+                    await ToastSaveSuccess("Data saved successfully.");
+                else
+                    await ToastSaveFail(response.Message);
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
+                return;
             }
         }
 
@@ -207,27 +209,24 @@ namespace SprinklerApp.ViewModels
                 return;
             }
 
-            using (var client = new HttpClient())
+            using var client = new HttpClient();
+            try
             {
-                try
-                {
-                    var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
-                    var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, false);
-                    var irrigationScheduleDto = IrrigationScheduleMapper.ToDto(irrigationSchedule);
+                var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
+                var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, false);
 
-                    var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
-                    var response = await irrigationApiService.SendDataAsync(irrigationScheduleDto);
+                var irrigationApiService = new ApiService<IrrigationSchedule>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataAsync(irrigationSchedule);
 
-                    if (response.IsSuccessful)
-                        await ToastSaveSuccess("Irrigation stopped successfully.");
-                    else
-                        await ToastSaveFail(response.Message);
-                }
-                catch (Exception e)
-                {
-                    await ToastSaveFail($"Something went wrong: {e.Message}");
-                    return;
-                }
+                if (response.IsSuccessful)
+                    await ToastSaveSuccess("Irrigation stopped successfully.");
+                else
+                    await ToastSaveFail(response.Message);
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
+                return;
             }
         }
 
@@ -236,16 +235,17 @@ namespace SprinklerApp.ViewModels
             using var client = new HttpClient();
             try
             {
-                List<IrrigationScheduleDto> irrigationSchedulesDto = [];
+                List<IrrigationSchedule> irrigationSchedules = [];
                 foreach (var irrigationSchedule in IrrigationSchedules)
                 {
-                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
+                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(),
+                        ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
 
-                    irrigationSchedulesDto.Add(IrrigationScheduleMapper.ToDto(irrigationSchedule));
+                    irrigationSchedules.Add(irrigationSchedule);
                 }
 
-                var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
-                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedulesDto);
+                var irrigationApiService = new ApiService<IrrigationSchedule>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedules);
 
                 if (response.IsSuccessful)
                     await ToastSaveSuccess("Data saved successfully.");
@@ -264,16 +264,17 @@ namespace SprinklerApp.ViewModels
             using var client = new HttpClient();
             try
             {
-                List<IrrigationScheduleDto> irrigationSchedulesDto = new List<IrrigationScheduleDto>();
+                List<IrrigationSchedule> irrigationSchedules = [];
                 foreach (var irrigationSchedule in IrrigationSchedules)
                 {
-                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
+                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule
+                        (SelectedTank.GetTank(), ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
 
-                    irrigationSchedulesDto.Add(IrrigationScheduleMapper.ToDto(irrigationSchedule));
+                    irrigationSchedules.Add(irrigationSchedule);
                 }
 
-                var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
-                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedulesDto);
+                var irrigationApiService = new ApiService<IrrigationSchedule>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedules);
 
                 if (response.IsSuccessful)
                     await ToastSaveSuccess("Data saved successfully.");
@@ -287,10 +288,33 @@ namespace SprinklerApp.ViewModels
             }
         }
 
+        ////TODO: Seperetate this method into two methods for Sprinklers and Tanks to notify change in list
+        //[RelayCommand]
+        //public void CollectionViewSelectionChanged(ISelectableCollection selectableCollection)
+        //{
+        //    selectableCollection.IsSelected = !selectableCollection.IsSelected;
+        //    //if (selectableCollection is List<TankDisplayModel>)
+        //    //    ListOfTanks.Where(t => t.Id == selectableCollection.Id) = 
+        //}
+ 
         [RelayCommand]
-        public void CollectionViewSelectionChanged(ISelectableCollection selectableCollection)
+        public void CollectionViewTankSelectionChanged(TankDisplayModel selectedTank)
         {
-            selectableCollection.IsSelected = !selectableCollection.IsSelected;
+            var tank = ListOfTanks.Find(t => t.Id == selectedTank.Id);
+            if (tank != null)
+            {
+                tank.IsSelected = !selectedTank.IsSelected;
+            }
+        }
+
+        [RelayCommand]
+        public void CollectionViewSprinklerSelectionChanged(SprinklerDisplayModel selectedSprinkler)
+        {
+            var sprinkler = ListOfSprinklers.Find(s => s.Id == selectedSprinkler.Id);
+            if (sprinkler != null)
+            {
+                sprinkler.IsSelected = !selectedSprinkler.IsSelected;
+            }
         }
     }
 }
