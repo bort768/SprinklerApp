@@ -21,6 +21,11 @@ namespace SprinklerApp.ViewModels
 
         public bool IsNotbusy => !IsBusy;
 
+        public virtual Task OnNavigatedToAsync()
+        {
+            return Task.CompletedTask;
+        }
+
         /// <summary>
         /// metoda do wyświetlania potwerdzenia
         /// </summary>

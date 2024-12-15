@@ -3,6 +3,7 @@ using Model.Helpers;
 
 namespace Model
 {
+
     public class IrrigationSchedule
     {
         public long Id { get; private set; }
@@ -12,10 +13,10 @@ namespace Model
         public TimeSpan Duration { get; set; }
         public bool IsActive { get; set; }
         public double MinimumTankLevel { get; private set; }
-        public int TankId { get; set; }
+        public long TankId { get; set; }
         public Tank Tank { get; set; }
-        public int SprinklerId { get; set; }
-        public Sprinkler Sprinkler { get; set; }
+        public IEnumerable<Sprinkler> Sprinklers { get; set; }
+        public IrrigationMode Mode { get; set; }
 
         public IrrigationSchedule()
         {

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Model.Dto
 {
     public class IrrigationScheduleDto
@@ -15,9 +10,9 @@ namespace Model.Dto
         public TimeSpan Duration { get; set; }
         public bool IsActive { get; set; }
         public double MinimumTankLevel { get; set; }
-        public int TankId { get; set; }
+        public long TankId { get; set; }
         public Tank Tank { get; set; }
-        public int SprinklerId { get; set; }
-        public Sprinkler Sprinkler { get; set; }
+        public IEnumerable<Sprinkler> Sprinklers { get; set; }
+        public IrrigationMode Mode { get; set; }
     }
 }

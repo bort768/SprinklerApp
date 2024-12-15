@@ -1,8 +1,9 @@
 ﻿using Model;
+using SprinklerApp.Helpers.Interfaces;
 
 namespace SprinklerApp.ViewModels
 {
-    public class TankDisplayModel
+    public class TankDisplayModel : ISelectableCollection
     {
         private readonly Tank _tank;
 
@@ -24,6 +25,7 @@ namespace SprinklerApp.ViewModels
         public long Id { get; private set; }
         public double FillLevel { get; private set; }
         public double Capacity { get; private set; }
+        public bool IsSelected { get; set; }
 
     }
 }

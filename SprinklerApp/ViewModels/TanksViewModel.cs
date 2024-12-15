@@ -62,7 +62,7 @@ namespace SprinklerApp.ViewModels
                     if (tanksDto is null)
                         return;
 
-                    var tanks = tanksDto.Select(t => TankMapper.ToModel(t));
+                    var tanks = tanksDto.Select(TankMapper.ToModel);
 
                     TankDisplays = tanks.Select(t => new TankDisplayModel(t)).ToList();               
 

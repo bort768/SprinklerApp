@@ -1,8 +1,9 @@
 ﻿using Model;
+using SprinklerApp.Helpers.Interfaces;
 
 namespace SprinklerApp.ViewModels
 {
-    public class SprinklerDisplayModel
+    public class SprinklerDisplayModel : ISelectableCollection
     {
         private readonly Sprinkler _sprinkler;
 

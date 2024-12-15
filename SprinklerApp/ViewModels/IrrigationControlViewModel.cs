@@ -1,23 +1,23 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Model;
+using Model.Dto;
 using Model.Mapper;
 using Newtonsoft.Json;
+using SprinklerApp.Factories;
 using SprinklerApp.Helpers;
-using System.Diagnostics;
-using System.Text;
+using SprinklerApp.Helpers.Interfaces;
+using SprinklerApp.Services;
 
 namespace SprinklerApp.ViewModels
 {
     public partial class IrrigationControlViewModel : BaseViewModel
     {
-        
         private double minimumTankLevel;
 
         [ObservableProperty]
         private string minimumTankLevelLabel;
-       
-        //Sussy baka
+
         partial void OnMinimumTankLevelLabelChanged(string value)
         {
             var result = IrrigationSchedules[0].SetMinimumTankLevel(value);
@@ -32,10 +32,10 @@ namespace SprinklerApp.ViewModels
         private bool minimumTankLevelIsValid;
 
         [ObservableProperty]
-        private Tank selectedTank;
+        private TankDisplayModel selectedTank;
 
         [ObservableProperty]
-        private List<Tank> listOfTanks;
+        private List<TankDisplayModel> listOfTanks = [];
 
         [ObservableProperty]
         private List<SprinklerDisplayModel> listOfSprinklers;
@@ -44,13 +44,33 @@ namespace SprinklerApp.ViewModels
         private List<IrrigationSchedule> irrigationSchedules;
 
         [ObservableProperty]
-        private bool isIrrigationByDayEnabled;  
-        
+        private bool isIrrigationByDayEnabled;
+
         [ObservableProperty]
         private bool isIrrigationControlMaunal;
 
         [ObservableProperty]
         private bool isIrrigationControlAutomatic;
+
+        private IrrigationMode irrigationMode;
+
+        partial void OnIsIrrigationByDayEnabledChanged(bool value)
+        {
+            if (value)
+                irrigationMode = IrrigationMode.Planned;
+        }
+
+        partial void OnIsIrrigationControlMaunalChanged(bool value)
+        {
+            if (value)
+                irrigationMode = IrrigationMode.Manual;
+        }
+
+        partial void OnIsIrrigationControlAutomaticChanged(bool value)
+        {
+            if (value)
+                irrigationMode = IrrigationMode.Automatic;
+        }
 
         [ObservableProperty]
         private TimeSpan startTime;
@@ -59,8 +79,7 @@ namespace SprinklerApp.ViewModels
         private TimeSpan endTime;
 
         [ObservableProperty]
-        private int duration;
-
+        private TimeSpan duration;
 
         public IrrigationControlViewModel()
         {
@@ -86,116 +105,192 @@ namespace SprinklerApp.ViewModels
             });
         }
 
-        //TODO : Implement the logic to control irrigation based on the provided data to raspberry pi
+        [RelayCommand]
+        public async Task SaveIrrigationSchedule()
+        {
+            switch (irrigationMode)
+            {
+                case IrrigationMode.Manual:
+                    await StartIrrigationManual();
+                    break;
+                case IrrigationMode.Automatic:
+                    await SaveIrrigationAutmatic();
+                    break;
+                case IrrigationMode.Planned:
+                    await SaveIrrigationPlanned();
+                    break;
+            }
+        }
 
-        //private bool ShouldIrrigate()
-        //{
-        //    if (selectedTank.FillLevel < minimumTankLevel)
-        //        return false;
+        public override async Task OnNavigatedToAsync()
+        {
+            
+        }
 
-        //    TimeSpan currentTime = DateTime.Now.TimeOfDay;
-        //    if (currentTime >= startTime && currentTime <= endTime)
-        //        return true;
+        private async Task LoadTankInfo()
+        {
+            using (var client = new HttpClient())
+            {
+                HttpResponseMessage? response = new();
+                try
+                {
+                    response = await client.GetAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.Tank));
+                }
+                catch (Exception e)
+                {
+                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                }
 
-        //    return false;
-        //}
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    if (string.IsNullOrEmpty(json))
+                        return;
+
+                    var tanksDto = JsonConvert.DeserializeObject<IEnumerable<TankDto>>(json);
+                    if (tanksDto is null)
+                        return;
+
+                    var tanks = tanksDto.Select(TankMapper.ToModel);
+
+                    ListOfTanks = tanks.Select(t => new TankDisplayModel(t)).ToList();
+
+                }
+            }
+        }
 
         [RelayCommand]
         public async Task StartIrrigationManual()
         {
-            //TODO : Implement the logic to start irrigation
+            if (SelectedTank is null)
+            {
+                await ToastSaveFail("Please select a tank.");
+                return;
+            }
             if (SelectedTank.FillLevel < minimumTankLevel)
             {
                 await ToastSaveFail("Tank level is below the minimum level.");
                 return;
             }
-            //TODO 03/10/2024: add start irigation logic with selected sprinklers add in irrigationcontrol api address to start irrigation
+
             using (var client = new HttpClient())
             {
                 try
                 {
-                    HttpResponseMessage? response = new();
-                    
                     var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
+                    var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, true);
+                    var irrigationScheduleDto = IrrigationScheduleMapper.ToDto(irrigationSchedule);
 
-                    var sprinklerDto = selectedSprinklers.Select(s => SprinklerMapper.ToDto(s.GetSprinkler()));
-                    var json = JsonConvert.SerializeObject(sprinklerDto);
-                    var content = new StringContent(json, Encoding.UTF8, "application/json");
+                    
+                    var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
+                    var response = await irrigationApiService.SendDataAsync(irrigationScheduleDto);
 
-                    var apiAddress = ApiSettings.Instance.ApiAddress;
-                    if (string.IsNullOrEmpty(apiAddress))
-                        await ToastSaveFail("API address is missing.");
-
-                    response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.IrrigationControl), content);
-
-                    if (response.IsSuccessStatusCode)
+                    if (response.IsSuccessful)
                         await ToastSaveSuccess("Data saved successfully.");
                     else
-                        await ToastSaveFail("Failed to save data to the database.");
+                        await ToastSaveFail(response.Message);
                 }
-
                 catch (Exception e)
                 {
                     await ToastSaveFail($"Something went wrong: {e.Message}");
                     return;
                 }
             }
-
         }
 
         [RelayCommand]
-        public void StopIrrigationManual()
+        public async Task StopIrrigationManual()
         {
-            //TODO : Implement the logic to stop irrigation
-        }
-
-        [RelayCommand]
-        public async Task SaveIrrigationSchedule()
-        {
-            //debug
-            foreach(var testActive in IrrigationSchedules)
+            if (SelectedTank is null)
             {
-                Debug.WriteLine(testActive.Day + testActive.IsActive.ToString());
+                await ToastSaveFail("Please select a tank.");
+                return;
             }
-            //TODO : Implement the logic to save the irrigation schedule
-            //using (var client = new HttpClient())
-            //{
-            //    try
-            //    {
-            //        HttpResponseMessage? response = new();
-            //        var sprinklerDto = SprinklerMapper.ToDto(sprinkler);
-            //        var json = JsonConvert.SerializeObject(sprinklerDto);
-            //        var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            //        var apiAddress = ApiSettings.Instance.ApiAddress;
-            //        if (string.IsNullOrEmpty(apiAddress))
-            //            await ToastSaveFail("API address is missing.");
+            using (var client = new HttpClient())
+            {
+                try
+                {
+                    var selectedSprinklers = ListOfSprinklers.Where(s => s.IsSelected);
+                    var irrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), selectedSprinklers, IrrigationMode.Manual, false);
+                    var irrigationScheduleDto = IrrigationScheduleMapper.ToDto(irrigationSchedule);
 
-            //        if (sprinklerId is null)
-            //            response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.IrrigationControl), content);
-            //        else
-            //            response = await client.PostAsync(GetApiAddress.GetAddress(GetApiAddress.ApiType.IrrigationControl, ), content);
+                    var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
+                    var response = await irrigationApiService.SendDataAsync(irrigationScheduleDto);
 
-            //        if (response.IsSuccessStatusCode)
-            //            await ToastSaveSuccess("Data saved successfully.");
-            //        else
-            //            await ToastSaveFail("Failed to save data to the database.");
-            //    }
-
-            //    catch (Exception e)
-            //    {
-            //        await ToastSaveFail($"Something went wrong: {e.Message}");
-            //        return;
-            //    }
-            //}
+                    if (response.IsSuccessful)
+                        await ToastSaveSuccess("Irrigation stopped successfully.");
+                    else
+                        await ToastSaveFail(response.Message);
+                }
+                catch (Exception e)
+                {
+                    await ToastSaveFail($"Something went wrong: {e.Message}");
+                    return;
+                }
+            }
         }
 
-        //CollectionView
-        [RelayCommand]
-        public void CVSprinklerSelectionChanged(SprinklerDisplayModel sprinklerDisplayModel)
+        public async Task SaveIrrigationPlanned()
         {
-            sprinklerDisplayModel.IsSelected = !sprinklerDisplayModel.IsSelected;
+            using var client = new HttpClient();
+            try
+            {
+                List<IrrigationScheduleDto> irrigationSchedulesDto = [];
+                foreach (var irrigationSchedule in IrrigationSchedules)
+                {
+                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
+
+                    irrigationSchedulesDto.Add(IrrigationScheduleMapper.ToDto(irrigationSchedule));
+                }
+
+                var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedulesDto);
+
+                if (response.IsSuccessful)
+                    await ToastSaveSuccess("Data saved successfully.");
+                else
+                    await ToastSaveFail(response.Message);
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
+                return;
+            }
         }
 
+        public async Task SaveIrrigationAutmatic()
+        {
+            using var client = new HttpClient();
+            try
+            {
+                List<IrrigationScheduleDto> irrigationSchedulesDto = new List<IrrigationScheduleDto>();
+                foreach (var irrigationSchedule in IrrigationSchedules)
+                {
+                    var newIrrigationSchedule = IrrigationScheduleFactory.CreateIrrigationSchedule(SelectedTank.GetTank(), ListOfSprinklers.Where(s => s.IsSelected), IrrigationMode.Planned, true, StartTime, EndTime, Duration, MinimumTankLevelLabel);
+
+                    irrigationSchedulesDto.Add(IrrigationScheduleMapper.ToDto(irrigationSchedule));
+                }
+
+                var irrigationApiService = new ApiService<IrrigationScheduleDto>(client, ApiSettings.Instance.ApiAddress);
+                var response = await irrigationApiService.SendDataBatchAsync(irrigationSchedulesDto);
+
+                if (response.IsSuccessful)
+                    await ToastSaveSuccess("Data saved successfully.");
+                else
+                    await ToastSaveFail(response.Message);
+            }
+            catch (Exception e)
+            {
+                await ToastSaveFail($"Something went wrong: {e.Message}");
+                return;
+            }
+        }
+
+        [RelayCommand]
+        public void CollectionViewSelectionChanged(ISelectableCollection selectableCollection)
+        {
+            selectableCollection.IsSelected = !selectableCollection.IsSelected;
+        }
     }
 }

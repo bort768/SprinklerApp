@@ -8,6 +8,7 @@ namespace SprinklerApp.Helpers
             Sprinkler,
             Tank,
             IrrigationControl,
+            IrrigationControlBatch,
             //TODO: Add more API types if needed
         }
 
@@ -31,6 +32,8 @@ namespace SprinklerApp.Helpers
                         return $"{ApiSettings.Instance.ApiAddress}/IrrigationControl";
                     else
                         return $"{ApiSettings.Instance.ApiAddress}/IrrigationControl/{id}";
+                case ApiType.IrrigationControlBatch:
+                    return $"{ApiSettings.Instance.ApiAddress}/api/IrrigationSchedules/batch";
                 //TODO: Add more cases for other API 
                 default:
                     throw new ArgumentException("Invalid API type.");

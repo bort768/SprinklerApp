@@ -4,9 +4,21 @@ namespace SprinklerApp.Views;
 
 public partial class IrrigationControlView : ContentPage
 {
-	public IrrigationControlView()
+    private IrrigationControlViewModel viewModel = new IrrigationControlViewModel();
+
+    public IrrigationControlView()
 	{
 		InitializeComponent();
-		BindingContext = new IrrigationControlViewModel();
+		BindingContext = viewModel;
+    }
+
+    protected override async void OnNavigatedTo(NavigatedToEventArgs args)
+    {
+        base.OnNavigatedTo(args);
+        if (viewModel != null)
+        {
+            await viewModel.OnNavigatedToAsync();
+        }
+
     }
 }

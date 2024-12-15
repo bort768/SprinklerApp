@@ -17,9 +17,8 @@ namespace Model.Mapper
                 MinimumTankLevel = irrigationSchedule.MinimumTankLevel,
                 TankId = irrigationSchedule.TankId,
                 Tank = irrigationSchedule.Tank,
-                SprinklerId = irrigationSchedule.SprinklerId,
-                Sprinkler = irrigationSchedule.Sprinkler
-
+                Sprinklers = irrigationSchedule.Sprinklers,
+                Mode = irrigationSchedule.Mode
             };
         }
 
@@ -34,8 +33,8 @@ namespace Model.Mapper
                 IsActive = irrigationScheduleDto.IsActive,              
                 TankId = irrigationScheduleDto.TankId,
                 Tank = irrigationScheduleDto.Tank,
-                SprinklerId = irrigationScheduleDto.SprinklerId,
-                Sprinkler = irrigationScheduleDto.Sprinkler
+                Sprinklers = irrigationScheduleDto.Sprinklers,
+                Mode = irrigationScheduleDto.Mode
 
             };
             irrigationSchedule.SetMinimumTankLevel(irrigationScheduleDto.MinimumTankLevel);

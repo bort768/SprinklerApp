@@ -75,13 +75,69 @@ namespace GateApiSpirinklerApp.Controllers
         // POST: api/IrrigationSchedules
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<IrrigationSchedule>> PostIrrigationSchedule(IrrigationSchedule irrigationSchedule)
+        public async Task<ActionResult<IrrigationScheduleDto>> PostIrrigationSchedule(IrrigationScheduleDto irrigationScheduleDto)
         {
-            await _unitOfWork.IrrigationScheduleRepository.Insert(irrigationSchedule);
+            await _unitOfWork.IrrigationScheduleRepository.Insert(IrrigationScheduleMapper.ToModel(irrigationScheduleDto));
 
             await _unitOfWork.Save();
 
-            return CreatedAtAction("GetIrrigationSchedule", new { id = irrigationSchedule.Id }, irrigationSchedule);
+            return CreatedAtAction("GetIrrigationSchedule", new { id = irrigationScheduleDto.Id }, irrigationScheduleDto);
+        }
+
+        [HttpPost("batch")]
+        public async Task<ActionResult> PostOrUpdateIrrigationSchedules([FromBody] List<IrrigationScheduleDto> irrigationScheduleDtos)
+        {
+            if (irrigationScheduleDtos == null || !irrigationScheduleDtos.Any())
+            {
+                return BadRequest("No irrigation schedules provided.");
+            }
+
+            foreach (var irrigationScheduleDto in irrigationScheduleDtos)
+            {
+                var existingSchedule = _unitOfWork.IrrigationScheduleRepository
+                    .Specify(new IrrigationSchedulesSpecificationByDay_TankId_Mode(irrigationScheduleDto.Day, irrigationScheduleDto.TankId, IrrigationMode.Planned)).FirstOrDefault();                   
+
+                if (existingSchedule != null)
+                {               
+                    existingSchedule.StartTime = irrigationScheduleDto.StartTime;
+                    existingSchedule.EndTime = irrigationScheduleDto.EndTime;
+                    existingSchedule.Duration = irrigationScheduleDto.Duration;
+                    existingSchedule.IsActive = irrigationScheduleDto.IsActive;
+                    existingSchedule.SetMinimumTankLevel(irrigationScheduleDto.MinimumTankLevel);
+                    existingSchedule.Sprinklers = irrigationScheduleDto.Sprinklers;
+                    existingSchedule.Mode = irrigationScheduleDto.Mode;
+
+                    _unitOfWork.IrrigationScheduleRepository.Update(existingSchedule);
+                }
+                else
+                {
+                    // Insert new schedule
+                    var newSchedule = IrrigationScheduleMapper.ToModel(irrigationScheduleDto);
+                    await _unitOfWork.IrrigationScheduleRepository.Insert(newSchedule);
+                }
+
+                // Deactivate other schedules if the new one is active
+                if (irrigationScheduleDto.IsActive)
+                {
+                    DeactivateOtherSchedules(irrigationScheduleDto.Day, irrigationScheduleDto.TankId, irrigationScheduleDto.Id);
+                }
+            }
+
+            await _unitOfWork.Save();
+
+            return Ok();
+        }
+
+        private void DeactivateOtherSchedules(DayOfWeek day, long tankId, long activeScheduleId)
+        {
+            var otherSchedules = _unitOfWork.IrrigationScheduleRepository
+                .Specify(new IrrigationSchedulesSpecificationSearchByDay_TankId_activeScheduleId(day, tankId, activeScheduleId)).ToList();
+
+            foreach (var schedule in otherSchedules)
+            {
+                schedule.IsActive = false;
+                _unitOfWork.IrrigationScheduleRepository.Update(schedule);
+            }
         }
 
         // DELETE: api/IrrigationSchedules/5
@@ -90,9 +146,7 @@ namespace GateApiSpirinklerApp.Controllers
         {
             var irrigationSchedule = await _unitOfWork.IrrigationScheduleRepository.GetByID(id);
             if (irrigationSchedule == null)
-            {
                 return NotFound();
-            }
 
             _unitOfWork.IrrigationScheduleRepository.Delete(irrigationSchedule);
             await _unitOfWork.Save();
