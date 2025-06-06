@@ -1,11 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace GateApiSpirinklerApp.Migrations
+namespace DataBaseService.Migrations
 {
     /// <inheritdoc />
-    public partial class SpellCheck : Migration
+    public partial class ReworkDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -218,6 +219,7 @@ namespace GateApiSpirinklerApp.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     Length = table.Column<int>(type: "int", nullable: false),
                     Width = table.Column<int>(type: "int", nullable: false),
                     Height = table.Column<int>(type: "int", nullable: false),
@@ -276,6 +278,53 @@ namespace GateApiSpirinklerApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "HistoryOfTankWaterLevels",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TankId = table.Column<long>(type: "bigint", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    WaterLevel = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HistoryOfTankWaterLevels", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HistoryOfTankWaterLevels_Tanks_TankId",
+                        column: x => x.TankId,
+                        principalTable: "Tanks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "IrrigationSchedules",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Day = table.Column<int>(type: "int", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    MinimumTankLevel = table.Column<double>(type: "float", nullable: false),
+                    TankId = table.Column<long>(type: "bigint", nullable: false),
+                    Mode = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IrrigationSchedules", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IrrigationSchedules_Tanks_TankId",
+                        column: x => x.TankId,
+                        principalTable: "Tanks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Hourlies",
                 columns: table => new
                 {
@@ -327,6 +376,26 @@ namespace GateApiSpirinklerApp.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Sprinklers",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IrrigationScheduleId = table.Column<long>(type: "bigint", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Sprinklers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Sprinklers_IrrigationSchedules_IrrigationScheduleId",
+                        column: x => x.IrrigationScheduleId,
+                        principalTable: "IrrigationSchedules",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Weathers",
                 columns: table => new
                 {
@@ -353,10 +422,62 @@ namespace GateApiSpirinklerApp.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "HistoryOfIrrigations",
+                columns: table => new
+                {
+                    Id = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndTime = table.Column<TimeSpan>(type: "time", nullable: false),
+                    Duration = table.Column<TimeSpan>(type: "time", nullable: false),
+                    TankId = table.Column<long>(type: "bigint", nullable: false),
+                    SprinklerId = table.Column<long>(type: "bigint", nullable: false),
+                    AmountOfWaterUsed = table.Column<double>(type: "float", nullable: false),
+                    WaterLevelBefore = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HistoryOfIrrigations", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_HistoryOfIrrigations_Sprinklers_SprinklerId",
+                        column: x => x.SprinklerId,
+                        principalTable: "Sprinklers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_HistoryOfIrrigations_Tanks_TankId",
+                        column: x => x.TankId,
+                        principalTable: "Tanks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HistoryOfIrrigations_SprinklerId",
+                table: "HistoryOfIrrigations",
+                column: "SprinklerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HistoryOfIrrigations_TankId",
+                table: "HistoryOfIrrigations",
+                column: "TankId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_HistoryOfTankWaterLevels_TankId",
+                table: "HistoryOfTankWaterLevels",
+                column: "TankId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_Hourlies_WeatherRootId",
                 table: "Hourlies",
                 column: "WeatherRootId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IrrigationSchedules_TankId",
+                table: "IrrigationSchedules",
+                column: "TankId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_LocationInfos_local_namesId",
@@ -367,6 +488,11 @@ namespace GateApiSpirinklerApp.Migrations
                 name: "IX_Minutelies_WeatherRootId",
                 table: "Minutelies",
                 column: "WeatherRootId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Sprinklers_IrrigationScheduleId",
+                table: "Sprinklers",
+                column: "IrrigationScheduleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_WeatherRoots_currentId",
@@ -388,6 +514,12 @@ namespace GateApiSpirinklerApp.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "HistoryOfIrrigations");
+
+            migrationBuilder.DropTable(
+                name: "HistoryOfTankWaterLevels");
+
+            migrationBuilder.DropTable(
                 name: "LocationInfos");
 
             migrationBuilder.DropTable(
@@ -397,10 +529,10 @@ namespace GateApiSpirinklerApp.Migrations
                 name: "Settings");
 
             migrationBuilder.DropTable(
-                name: "Tanks");
+                name: "Weathers");
 
             migrationBuilder.DropTable(
-                name: "Weathers");
+                name: "Sprinklers");
 
             migrationBuilder.DropTable(
                 name: "LocalNames");
@@ -409,7 +541,13 @@ namespace GateApiSpirinklerApp.Migrations
                 name: "Hourlies");
 
             migrationBuilder.DropTable(
+                name: "IrrigationSchedules");
+
+            migrationBuilder.DropTable(
                 name: "WeatherRoots");
+
+            migrationBuilder.DropTable(
+                name: "Tanks");
 
             migrationBuilder.DropTable(
                 name: "Currents");

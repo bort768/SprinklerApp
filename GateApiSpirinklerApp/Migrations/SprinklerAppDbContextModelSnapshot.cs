@@ -94,19 +94,13 @@ namespace GateApiSpirinklerApp.Migrations
                     b.Property<TimeSpan>("EndTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("SprinklerId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("SprinklerId1")
+                    b.Property<long>("SprinklerId")
                         .HasColumnType("bigint");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("TankId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("TankId1")
+                    b.Property<long>("TankId")
                         .HasColumnType("bigint");
 
                     b.Property<double>("WaterLevelBefore")
@@ -114,9 +108,9 @@ namespace GateApiSpirinklerApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SprinklerId1");
+                    b.HasIndex("SprinklerId");
 
-                    b.HasIndex("TankId1");
+                    b.HasIndex("TankId");
 
                     b.ToTable("HistoryOfIrrigations");
                 });
@@ -225,26 +219,18 @@ namespace GateApiSpirinklerApp.Migrations
                     b.Property<double>("MinimumTankLevel")
                         .HasColumnType("float");
 
-                    b.Property<int>("SprinklerId")
+                    b.Property<int>("Mode")
                         .HasColumnType("int");
-
-                    b.Property<long>("SprinklerId1")
-                        .HasColumnType("bigint");
 
                     b.Property<TimeSpan>("StartTime")
                         .HasColumnType("time");
 
-                    b.Property<int>("TankId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("TankId1")
+                    b.Property<long>("TankId")
                         .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SprinklerId1");
-
-                    b.HasIndex("TankId1");
+                    b.HasIndex("TankId");
 
                     b.ToTable("IrrigationSchedules");
                 });
@@ -954,6 +940,9 @@ namespace GateApiSpirinklerApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("IrrigationScheduleId")
+                        .HasColumnType("bigint");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
@@ -963,6 +952,8 @@ namespace GateApiSpirinklerApp.Migrations
                         .HasColumnType("nvarchar(250)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IrrigationScheduleId");
 
                     b.ToTable("Sprinklers");
                 });
@@ -1067,13 +1058,13 @@ namespace GateApiSpirinklerApp.Migrations
                 {
                     b.HasOne("Model.Sprinkler", "Sprinkler")
                         .WithMany()
-                        .HasForeignKey("SprinklerId1")
+                        .HasForeignKey("SprinklerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Model.Tank", "Tank")
                         .WithMany()
-                        .HasForeignKey("TankId1")
+                        .HasForeignKey("TankId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1102,19 +1093,11 @@ namespace GateApiSpirinklerApp.Migrations
 
             modelBuilder.Entity("Model.IrrigationSchedule", b =>
                 {
-                    b.HasOne("Model.Sprinkler", "Sprinkler")
-                        .WithMany()
-                        .HasForeignKey("SprinklerId1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Model.Tank", "Tank")
                         .WithMany()
-                        .HasForeignKey("TankId1")
+                        .HasForeignKey("TankId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Sprinkler");
 
                     b.Navigation("Tank");
                 });
@@ -1135,6 +1118,13 @@ namespace GateApiSpirinklerApp.Migrations
                     b.HasOne("Model.WeatherRoot", null)
                         .WithMany("minutely")
                         .HasForeignKey("WeatherRootId");
+                });
+
+            modelBuilder.Entity("Model.Sprinkler", b =>
+                {
+                    b.HasOne("Model.IrrigationSchedule", null)
+                        .WithMany("Sprinklers")
+                        .HasForeignKey("IrrigationScheduleId");
                 });
 
             modelBuilder.Entity("Model.Weather", b =>
@@ -1167,6 +1157,11 @@ namespace GateApiSpirinklerApp.Migrations
             modelBuilder.Entity("Model.Hourly", b =>
                 {
                     b.Navigation("weather");
+                });
+
+            modelBuilder.Entity("Model.IrrigationSchedule", b =>
+                {
+                    b.Navigation("Sprinklers");
                 });
 
             modelBuilder.Entity("Model.WeatherRoot", b =>

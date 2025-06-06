@@ -8,9 +8,9 @@ namespace Model
         public TimeSpan StartTime { get; private set; }
         public TimeSpan EndTime { get; private set; }
         public TimeSpan Duration { get; private set; }
-        public int TankId { get; private set; }
+        public long TankId { get; private set; }
         public Tank Tank { get; private set; }
-        public int SprinklerId { get; private set; }
+        public long SprinklerId { get; private set; }
         public Sprinkler Sprinkler { get; private set; }
         public double AmountOfWaterUsed { get; private set; }
         public double WaterLevelBefore { get; private set; }

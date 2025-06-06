@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model.Helpers;
+using System.Diagnostics;
 
 namespace DataBaseService.Infrastructure
 {
@@ -16,7 +17,16 @@ namespace DataBaseService.Infrastructure
 
         public virtual async Task<IEnumerable<TEntity>> GetAllAsync()
         {
-            return await dbSet.ToListAsync();
+            try
+            {
+                return await dbSet.ToListAsync();
+            }
+            catch (Exception e)
+            {
+                Debug.Print($"Error in {nameof(GetAllAsync)}: {e.Message}");
+                throw;
+            }
+            
         }
 
         public virtual IEnumerable<TEntity> Specify(ISpecification<TEntity> specification = null)

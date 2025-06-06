@@ -9,12 +9,24 @@ var builder = WebApplication.CreateBuilder(args);
 //builder.Configuration
 //    .SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("secrets.json");
 
-var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
-if (connectionstring == null)
+var environment = builder.Environment.EnvironmentName;
+
+string connectionString;
+
+if (environment != "Docker")
+{
+    connectionString = builder.Configuration.GetConnectionString("DevConnection");
+}
+else
+{
+    connectionString = builder.Configuration.GetConnectionString("DockerConnection");
+}
+//var connectionstring = builder.Configuration.GetConnectionString("DefaultConnection");
+if (connectionString == null)
     throw new InvalidOperationException("Connection string not found.");
 
 builder.Services.AddDbContext<SprinklerAppDbContext>(options =>
-        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly("GateApiSpirinklerApp")));
+        options.UseSqlServer(connectionString, b => b.MigrationsAssembly("GateApiSpirinklerApp")));
 //builder.Services.AddDbContext<SprinklerAppDbContext>();
 
 builder.Services.AddScoped<UnitOfWork, UnitOfWork>(provider =>

@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace Model
 {
-    public class TankByVolumeSpecification : BaseSpecifcation<Tank>
+    public class TankByVolumeSpecification : BaseSpecification<Tank>
     {
         public TankByVolumeSpecification()
         {
@@ -11,7 +11,7 @@ namespace Model
         }
     }
 
-    public class TankByNameSpecification : BaseSpecifcation<Tank>
+    public class TankByNameSpecification : BaseSpecification<Tank>
     {
         public TankByNameSpecification(string name) : base(x => x.Name.Contains(name))
         {

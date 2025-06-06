@@ -37,8 +37,7 @@ namespace SprinklerApp.ViewModels
             {
                 HttpResponseMessage? response = new();
                 try
-                {
-                    //Todo: dodać szukanie po nazwie
+                {                 
                     var searchRoute = string.IsNullOrEmpty(SearchText)
                         ? $"{ApiSettings.Instance.ApiAddress}/Sprinkler"
                         : $"{ApiSettings.Instance.ApiAddress}/Sprinkler/" +
@@ -60,7 +59,7 @@ namespace SprinklerApp.ViewModels
                     if (sprinklerDto is null)
                         return;
 
-                    var tanks = sprinklerDto.Select(s => SprinklerMapper.ToModel(s));
+                    var tanks = sprinklerDto.Select(SprinklerMapper.ToModel);
 
                     SprinklerDisplayModels = tanks.Select(t => new SprinklerDisplayModel(t)).ToList();
 

@@ -1,6 +1,7 @@
 ﻿using DataBaseService.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Model;
 using Model.Dto;
 using Model.Mapper;
 
@@ -24,6 +25,15 @@ namespace GateApiSpirinklerApp.Controllers
         public async Task<ActionResult<IEnumerable<SprinklerDto>>> GetSprinklers()
         {
             var sprinklers = await _unitOfWork.SprinklerRepository.GetAllAsync();
+            var sprinklersDto = sprinklers.Select(SprinklerMapper.ToDto);
+            return Ok(sprinklersDto);
+        }
+
+        // GET api/<SprinklerController>/SearchByName/{name}
+        [HttpGet("SearchByName/{name?}")]
+        public ActionResult<IEnumerable<SprinklerDto>> GetSprinklerByName(string name)
+        {
+            var sprinklers = _unitOfWork.SprinklerRepository.Specify(new SprinklerByNameSpecification(name));
             var sprinklersDto = sprinklers.Select(SprinklerMapper.ToDto);
             return Ok(sprinklersDto);
         }

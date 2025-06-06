@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GateApiSpirinklerApp.Migrations
 {
     [DbContext(typeof(SprinklerAppDbContext))]
-    [Migration("20240828161928_SpellCheck")]
-    partial class SpellCheck
+    [Migration("20250604192742_ReworkDb")]
+    partial class ReworkDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,6 +77,71 @@ namespace GateApiSpirinklerApp.Migrations
                     b.ToTable("Currents");
                 });
 
+            modelBuilder.Entity("Model.HistoryOfIrrigation", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<double>("AmountOfWaterUsed")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<TimeSpan>("Duration")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<long>("SprinklerId")
+                        .HasColumnType("bigint");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<long>("TankId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("WaterLevelBefore")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SprinklerId");
+
+                    b.HasIndex("TankId");
+
+                    b.ToTable("HistoryOfIrrigations");
+                });
+
+            modelBuilder.Entity("Model.HistoryOfTankWaterLevel", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long>("TankId")
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("WaterLevel")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TankId");
+
+                    b.ToTable("HistoryOfTankWaterLevels");
+                });
+
             modelBuilder.Entity("Model.Hourly", b =>
                 {
                     b.Property<long>("Id")
@@ -132,6 +197,45 @@ namespace GateApiSpirinklerApp.Migrations
                     b.HasIndex("WeatherRootId");
 
                     b.ToTable("Hourlies");
+                });
+
+            modelBuilder.Entity("Model.IrrigationSchedule", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("Day")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("Duration")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<double>("MinimumTankLevel")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Mode")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<long>("TankId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TankId");
+
+                    b.ToTable("IrrigationSchedules");
                 });
 
             modelBuilder.Entity("Model.LocalNames", b =>
@@ -831,6 +935,32 @@ namespace GateApiSpirinklerApp.Migrations
                     b.ToTable("Settings");
                 });
 
+            modelBuilder.Entity("Model.Sprinkler", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long?>("IrrigationScheduleId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IrrigationScheduleId");
+
+                    b.ToTable("Sprinklers");
+                });
+
             modelBuilder.Entity("Model.Tank", b =>
                 {
                     b.Property<long>("Id")
@@ -847,6 +977,11 @@ namespace GateApiSpirinklerApp.Migrations
 
                     b.Property<int>("Length")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int>("Width")
                         .HasColumnType("int");
@@ -922,11 +1057,52 @@ namespace GateApiSpirinklerApp.Migrations
                     b.ToTable("WeatherRoots");
                 });
 
+            modelBuilder.Entity("Model.HistoryOfIrrigation", b =>
+                {
+                    b.HasOne("Model.Sprinkler", "Sprinkler")
+                        .WithMany()
+                        .HasForeignKey("SprinklerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Model.Tank", "Tank")
+                        .WithMany()
+                        .HasForeignKey("TankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Sprinkler");
+
+                    b.Navigation("Tank");
+                });
+
+            modelBuilder.Entity("Model.HistoryOfTankWaterLevel", b =>
+                {
+                    b.HasOne("Model.Tank", "Tank")
+                        .WithMany()
+                        .HasForeignKey("TankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tank");
+                });
+
             modelBuilder.Entity("Model.Hourly", b =>
                 {
                     b.HasOne("Model.WeatherRoot", null)
                         .WithMany("hourly")
                         .HasForeignKey("WeatherRootId");
+                });
+
+            modelBuilder.Entity("Model.IrrigationSchedule", b =>
+                {
+                    b.HasOne("Model.Tank", "Tank")
+                        .WithMany()
+                        .HasForeignKey("TankId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tank");
                 });
 
             modelBuilder.Entity("Model.LocationInfo", b =>
@@ -945,6 +1121,13 @@ namespace GateApiSpirinklerApp.Migrations
                     b.HasOne("Model.WeatherRoot", null)
                         .WithMany("minutely")
                         .HasForeignKey("WeatherRootId");
+                });
+
+            modelBuilder.Entity("Model.Sprinkler", b =>
+                {
+                    b.HasOne("Model.IrrigationSchedule", null)
+                        .WithMany("Sprinklers")
+                        .HasForeignKey("IrrigationScheduleId");
                 });
 
             modelBuilder.Entity("Model.Weather", b =>
@@ -977,6 +1160,11 @@ namespace GateApiSpirinklerApp.Migrations
             modelBuilder.Entity("Model.Hourly", b =>
                 {
                     b.Navigation("weather");
+                });
+
+            modelBuilder.Entity("Model.IrrigationSchedule", b =>
+                {
+                    b.Navigation("Sprinklers");
                 });
 
             modelBuilder.Entity("Model.WeatherRoot", b =>
